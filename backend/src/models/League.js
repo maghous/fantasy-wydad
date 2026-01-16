@@ -27,11 +27,10 @@ const leagueSchema = new mongoose.Schema({
 });
 
 // Add creator to members automatically
-leagueSchema.pre('save', function (next) {
-    if (this.isNew && !this.members.includes(this.createdBy)) {
+leagueSchema.pre('save', function () {
+    if (this.isNew && this.createdBy && !this.members.includes(this.createdBy)) {
         this.members.push(this.createdBy);
     }
-    next();
 });
 
 module.exports = mongoose.model('League', leagueSchema);

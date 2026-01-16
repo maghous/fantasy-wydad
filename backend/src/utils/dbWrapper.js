@@ -77,7 +77,15 @@ const wrapper = {
                 'results': require('../models/MatchResult')
             };
             const Model = models[collection];
-            const doc = new Model(data);
+
+            // If data has an _id that looks like a UUID (string from local DB), remove it 
+            // to let MongoDB generate a proper ObjectId
+            const cleanData = { ...data };
+            if (cleanData._id && typeof cleanData._id === 'string' && cleanData._id.length > 24) {
+                delete cleanData._id;
+            }
+
+            const doc = new Model(cleanData);
             await doc.save();
             return doc.toObject();
         }
