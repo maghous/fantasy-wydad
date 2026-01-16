@@ -15,15 +15,16 @@ const connectDB = async () => {
             const maskedUri = uri.replace(/:([^:@]+)@/, ':****@');
             console.log('Attempting to connect to:', maskedUri);
 
-            await mongoose.connect(uri, {
-                dbName: 'wydad-pronostics'
-            });
+            await mongoose.connect(uri);
             console.log('MongoDB Connected (Cloud/Local)');
         } else {
             console.log('Using Local JSON Database (No MongoDB URI provided)');
         }
     } catch (err) {
         console.error('MongoDB Connection Error:', err.message);
+        if (err.message.includes('authentication failed')) {
+            console.log('TIP: Check your MONGODB_URI on Render dashboard for typos or extra spaces.');
+        }
     }
 };
 connectDB();
