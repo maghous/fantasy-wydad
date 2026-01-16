@@ -36,7 +36,7 @@ router.post(
                 username,
                 email,
                 password: hashedPassword,
-                isAdmin: email.toLowerCase() === (process.env.ADMIN_EMAIL || 'admin@fantasy.com').toLowerCase()
+                isAdmin: email.toLowerCase() === (process.env.ADMIN_EMAIL || 'barkoukwydadis@gmail.com').toLowerCase()
             });
 
             const payload = { userId: user._id, isAdmin: user.isAdmin };
@@ -76,10 +76,11 @@ router.post(
                 return res.status(400).json({ message: 'Identifiants invalides' });
             }
 
-            const payload = { userId: user._id, isAdmin: user.isAdmin };
+            const isAdmin = user.isAdmin || (user.email.toLowerCase() === (process.env.ADMIN_EMAIL || 'barkoukwydadis@gmail.com').toLowerCase());
+            const payload = { userId: user._id, isAdmin: isAdmin };
             const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
-            res.json({ token, user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin } });
+            res.json({ token, user: { id: user._id, username: user.username, email: user.email, isAdmin: isAdmin } });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Erreur serveur');
