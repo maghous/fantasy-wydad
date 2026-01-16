@@ -7,10 +7,17 @@ const app = express();
 // Connect to Database (Compatible with MongoDB Atlas for Production)
 const connectDB = async () => {
     try {
-        // Only connect if MONGODB_URI starts with mongodb (to avoid local JSON confusion if env var is missing)
-        if (process.env.MONGODB_URI && process.env.MONGODB_URI.startsWith('mongodb')) {
+        const uri = process.env.MONGODB_URI;
+        if (uri && uri.startsWith('mongodb')) {
             const mongoose = require('mongoose');
-            await mongoose.connect(process.env.MONGODB_URI);
+
+            // Mask password for safety in logs
+            const maskedUri = uri.replace(/:([^:@]+)@/, ':****@');
+            console.log('Attempting to connect to:', maskedUri);
+
+            await mongoose.connect(uri, {
+                dbName: 'wydad-pronostics'
+            });
             console.log('MongoDB Connected (Cloud/Local)');
         } else {
             console.log('Using Local JSON Database (No MongoDB URI provided)');
