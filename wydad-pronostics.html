@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wydad Pronostics - Application</title>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Lucide Icons as React components
+        const Icon = ({ name, ...props }) => {
+            React.useEffect(() => {
+                lucide.createIcons();
+            });
+            return React.createElement('i', { 'data-lucide': name, ...props });
+        };
+
+        const Users = (props) => <Icon name="users" {...props} />;
+        const Trophy = (props) => <Icon name="trophy" {...props} />;
+        const Calendar = (props) => <Icon name="calendar" {...props} />;
+        const Target = (props) => <Icon name="target" {...props} />;
+        const Award = (props) => <Icon name="award" {...props} />;
+        const User = (props) => <Icon name="user" {...props} />;
+        const Settings = (props) => <Icon name="settings" {...props} />;
+        const Plus = (props) => <Icon name="plus" {...props} />;
+        const ArrowLeft = (props) => <Icon name="arrow-left" {...props} />;
+        const CheckCircle = (props) => <Icon name="check-circle" {...props} />;
+        const BarChart3 = (props) => <Icon name="bar-chart-3" {...props} />;
+
+        const PLAYERS = [
+            "Ayoub El Amloud", "Yahia Attiyat Allah", "Arslan Azouni",
+            "Reda Jaadi", "Bouly Sambou", "Muaid Ellafi",
+            "Hicham Boussefiane", "Amine Farhane", "Jamal Harkass"
+        ];
+
+        const MATCHES = [
+            { id: 1, opponent: "Raja Casablanca", date: "2026-01-18", location: "Domicile" },
+            { id: 2, opponent: "FAR Rabat", date: "2026-01-25", location: "Extérieur" },
+            { id: 3, opponent: "Renaissance Berkane", date: "2026-02-01", location: "Domicile" },
+            { id: 4, opponent: "Maghreb Fès", date: "2026-02-08", location: "Extérieur" },
+            { id: 5, opponent: "Hassania Agadir", date: "2026-02-15", location: "Domicile" }
+        ];
+
+        function WydadPredictionApp() {
+            const [userId, setUserId] = React.useState('');
+            const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+            const [currentMatch, setCurrentMatch] = React.useState(null);
+            const [selectedScorers, setSelectedScorers] = React.useState([]);
+            const [result, setResult] = React.useState('');
+            const [wydadScore, setWydadScore] = React.useState('');
+            const [opponentScore, setOpponentScore] = React.useState('');
+            const [predictions, setPredictions] = React.useState([]);
+            const [view, setView] = React.useState('login');
+
+            const [leagues, setLeagues] = React.useState([]);
+            const [currentLeague, setCurrentLeague] = React.useState(null);
+            const [newLeagueName, setNewLeagueName] = React.useState('');
+            const [pointsExactScore, setPointsExactScore] = React.useState('5');
+            const [pointsPerScorer, setPointsPerScorer] = React.useState('3');
+            const [pointsCorrectResult, setPointsCorrectResult] = React.useState('1');
+
+            const [matchResults, setMatchResults] = React.useState([]);
+            const [resultMatch, setResultMatch] = React.useState(null);
+            const [realWydadScore, setRealWydadScore] = React.useState('');
+            const [realOpponentScore, setRealOpponentScore] = React.useState('');
+            const [realScorers, setRealScorers] = React.useState([]);
+
+            React.useEffect(() => {
+                const stored = localStorage.getItem('wydadUserId');
+                if (stored) {
+                    setUserId(stored);
+                    setIsLoggedIn(true);
+                    loadLeagues();
+                    loadMatchResults();
+                    const savedLeague = localStorage.getItem('currentLeague');
+                    if (savedLeague) {
+                        setCurrentLeague(JSON.parse(savedLeague));
+                        loadPredictions(stored, JSON.parse(savedLeague).id);
+                    }
+                    setView('leagues');
+                }
+            }, []);
+
+            const loadLeagues = () => {
+                const stored = localStorage.getItem('leagues');
+                if (stored) {
+                    setLeagues(JSON.parse(stored));
+                }
+            };
+
+            const loadMatchResults = () => {
+                const stored = localStorage.getItem('matchResults');
+                if (stored) {
+                    setMatchResults(JSON.parse(stored));
+                }
+            };
+
+            const loadPredictions = (uid, leagueId) => {
+                const stored = localStorage.getItem(`predictions_${uid}_${leagueId}`);
+                if (stored) {
+                    setPredictions(JSON.parse(stored));
+                } else {
+                    setPredictions([]);
+                }
+            };
+
+            const handleLogin = () => {
+                if (userId.trim()) {
+                    localStorage.setItem('wydadUserId', userId);
+                    setIsLoggedIn(true);
+                    loadLeagues();
+                    loadMatchResults();
+                    setView('leagues');
+                }
+            };
+
+            const handleLogout = () => {
+                setIsLoggedIn(false);
+                setUserId('');
+                setCurrentLeague(null);
+                setView('login');
+                localStorage.removeItem('wydadUserId');
+                localStorage.removeItem('currentLeague');
+            };
+
+            const createLeague = () => {
+                if (!newLeagueName.trim()) {
+                    alert('Veuillez entrer un nom de ligue');
+                    return;
+                }
+
+                const league = {
+                    id: Date.now().toString(),
+                    name: newLeagueName,
+                    createdBy: userId,
+                    scoring: {
+                        exactScore: parseInt(pointsExactScore),
+                        perScorer: parseInt(pointsPerScorer),
+                        correctResult: parseInt(pointsCorrectResult)
+                    },
+                    createdAt: new Date().toISOString()
+                };
+
+                const updated = [...leagues, league];
+                setLeagues(updated);
+                localStorage.setItem('leagues', JSON.stringify(updated));
+
+                setNewLeagueName('');
+                setPointsExactScore('5');
+                setPointsPerScorer('3');
+                setPointsCorrectResult('1');
+                alert('Ligue créée avec succès !');
+                setView('leagues');
+            };
+
+            const selectLeague = (league) => {
+                setCurrentLeague(league);
+                localStorage.setItem('currentLeague', JSON.stringify(league));
+                loadPredictions(userId, league.id);
+                setView('matches');
+            };
+
+            const toggleScorer = (player) => {
+                setSelectedScorers(prev =>
+                    prev.includes(player)
+                        ? prev.filter(p => p !== player)
+                        : [...prev, player]
+                );
+            };
+
+            const toggleRealScorer = (player) => {
+                setRealScorers(prev =>
+                    prev.includes(player)
+                        ? prev.filter(p => p !== player)
+                        : [...prev, player]
+                );
+            };
+
+            const submitPrediction = () => {
+                if (!currentMatch || !result || wydadScore === '' || opponentScore === '') {
+                    alert('Veuillez remplir tous les champs obligatoires');
+                    return;
+                }
+
+                const prediction = {
+                    matchId: currentMatch.id,
+                    opponent: currentMatch.opponent,
+                    date: currentMatch.date,
+                    scorers: selectedScorers,
+                    result: result,
+                    wydadScore: parseInt(wydadScore),
+                    opponentScore: parseInt(opponentScore),
+                    timestamp: new Date().toISOString()
+                };
+
+                const updated = [...predictions.filter(p => p.matchId !== currentMatch.id), prediction];
+                setPredictions(updated);
+                localStorage.setItem(`predictions_${userId}_${currentLeague.id}`, JSON.stringify(updated));
+
+                alert('Pronostic enregistré avec succès !');
+                setCurrentMatch(null);
+                setSelectedScorers([]);
+                setResult('');
+                setWydadScore('');
+                setOpponentScore('');
+                setView('matches');
+            };
+
+            const submitMatchResult = () => {
+                if (!resultMatch || realWydadScore === '' || realOpponentScore === '') {
+                    alert('Veuillez remplir tous les champs obligatoires');
+                    return;
+                }
+
+                const matchResult = {
+                    matchId: resultMatch.id,
+                    opponent: resultMatch.opponent,
+                    wydadScore: parseInt(realWydadScore),
+                    opponentScore: parseInt(realOpponentScore),
+                    scorers: realScorers,
+                    timestamp: new Date().toISOString()
+                };
+
+                const updated = [...matchResults.filter(r => r.matchId !== resultMatch.id), matchResult];
+                setMatchResults(updated);
+                localStorage.setItem('matchResults', JSON.stringify(updated));
+
+                alert('Résultat enregistré avec succès !');
+                setResultMatch(null);
+                setRealWydadScore('');
+                setRealOpponentScore('');
+                setRealScorers([]);
+                setView('matches');
+            };
+
+            const calculatePoints = (prediction, realResult, scoring) => {
+                if (!realResult) return 0;
+
+                let points = 0;
+
+                if (prediction.wydadScore === realResult.wydadScore &&
+                    prediction.opponentScore === realResult.opponentScore) {
+                    points += scoring.exactScore;
+                } else {
+                    const predResult = prediction.wydadScore > prediction.opponentScore ? 'win' :
+                        prediction.wydadScore < prediction.opponentScore ? 'lose' : 'draw';
+                    const realRes = realResult.wydadScore > realResult.opponentScore ? 'win' :
+                        realResult.wydadScore < realResult.opponentScore ? 'lose' : 'draw';
+
+                    if (predResult === realRes) {
+                        points += scoring.correctResult;
+                    }
+                }
+
+                prediction.scorers.forEach(scorer => {
+                    if (realResult.scorers.includes(scorer)) {
+                        points += scoring.perScorer;
+                    }
+                });
+
+                return points;
+            };
+
+            const getLeagueRanking = () => {
+                if (!currentLeague) return [];
+
+                const allPredictions = {};
+                const allUsers = new Set();
+
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('predictions_') && key.endsWith(`_${currentLeague.id}`)) {
+                        const userIdFromKey = key.split('_')[1];
+                        allUsers.add(userIdFromKey);
+                        const preds = JSON.parse(localStorage.getItem(key));
+                        allPredictions[userIdFromKey] = preds;
+                    }
+                }
+
+                const rankings = Array.from(allUsers).map(uid => {
+                    const userPreds = allPredictions[uid] || [];
+                    let totalPoints = 0;
+
+                    userPreds.forEach(pred => {
+                        const realResult = matchResults.find(r => r.matchId === pred.matchId);
+                        if (realResult) {
+                            totalPoints += calculatePoints(pred, realResult, currentLeague.scoring);
+                        }
+                    });
+
+                    return {
+                        userId: uid,
+                        points: totalPoints,
+                        predictions: userPreds.length
+                    };
+                });
+
+                return rankings.sort((a, b) => b.points - a.points);
+            };
+
+            const getGlobalRanking = () => {
+                const allPredictions = {};
+                const allUsers = new Set();
+
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('predictions_')) {
+                        const parts = key.split('_');
+                        const userIdFromKey = parts[1];
+                        const leagueIdFromKey = parts[2];
+
+                        allUsers.add(userIdFromKey);
+
+                        if (!allPredictions[userIdFromKey]) {
+                            allPredictions[userIdFromKey] = {};
+                        }
+
+                        const preds = JSON.parse(localStorage.getItem(key));
+                        allPredictions[userIdFromKey][leagueIdFromKey] = preds;
+                    }
+                }
+
+                const rankings = Array.from(allUsers).map(uid => {
+                    let totalPoints = 0;
+                    let totalPredictions = 0;
+
+                    Object.keys(allPredictions[uid] || {}).forEach(leagueId => {
+                        const league = leagues.find(l => l.id === leagueId);
+                        if (league) {
+                            const userPreds = allPredictions[uid][leagueId] || [];
+                            totalPredictions += userPreds.length;
+
+                            userPreds.forEach(pred => {
+                                const realResult = matchResults.find(r => r.matchId === pred.matchId);
+                                if (realResult) {
+                                    totalPoints += calculatePoints(pred, realResult, league.scoring);
+                                }
+                            });
+                        }
+                    });
+
+                    return {
+                        userId: uid,
+                        points: totalPoints,
+                        predictions: totalPredictions
+                    };
+                });
+
+                return rankings.sort((a, b) => b.points - a.points);
+            };
+
+            const startPrediction = (match) => {
+                const existing = predictions.find(p => p.matchId === match.id);
+                setCurrentMatch(match);
+                if (existing) {
+                    setSelectedScorers(existing.scorers);
+                    setResult(existing.result);
+                    setWydadScore(existing.wydadScore.toString());
+                    setOpponentScore(existing.opponentScore.toString());
+                } else {
+                    setSelectedScorers([]);
+                    setResult('');
+                    setWydadScore('');
+                    setOpponentScore('');
+                }
+                setView('predict');
+            };
+
+            const startResultEntry = (match) => {
+                const existing = matchResults.find(r => r.matchId === match.id);
+                setResultMatch(match);
+                if (existing) {
+                    setRealWydadScore(existing.wydadScore.toString());
+                    setRealOpponentScore(existing.opponentScore.toString());
+                    setRealScorers(existing.scorers);
+                } else {
+                    setRealWydadScore('');
+                    setRealOpponentScore('');
+                    setRealScorers([]);
+                }
+                setView('enterResult');
+            };
+
+            if (!isLoggedIn) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+                            <div className="text-center mb-8">
+                                <Trophy className="w-16 h-16 text-red-600 mx-auto mb-4" />
+                                <h1 className="text-3xl font-bold text-gray-800 mb-2">Wydad Pronostics</h1>
+                                <p className="text-gray-600">Bienvenue cher supporter !</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Votre identifiant unique
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={userId}
+                                        onChange={(e) => setUserId(e.target.value)}
+                                        placeholder="Ex: Ahmed123"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={handleLogin}
+                                    className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition"
+                                >
+                                    Connexion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'leagues') {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-red-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <Users className="w-8 h-8" />
+                                    <div>
+                                        <h1 className="text-2xl font-bold">Mes Ligues</h1>
+                                        <p className="text-red-100 text-sm flex items-center gap-2">
+                                            <User className="w-4 h-4" />
+                                            {userId}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setView('globalRanking')}
+                                        className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg transition flex items-center gap-2"
+                                    >
+                                        <BarChart3 className="w-4 h-4" />
+                                        Classement Global
+                                    </button>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="px-4 py-2 bg-red-700 hover:bg-red-800 rounded-lg transition"
+                                    >
+                                        Déconnexion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6">
+                            <button
+                                onClick={() => setView('createLeague')}
+                                className="w-full mb-6 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
+                            >
+                                <Plus className="w-5 h-5" />
+                                Créer une nouvelle ligue
+                            </button>
+
+                            {leagues.length === 0 ? (
+                                <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                                    <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-600">Aucune ligue pour le moment</p>
+                                    <p className="text-gray-500 text-sm mt-2">Créez votre première ligue !</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {leagues.map(league => (
+                                        <div key={league.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+                                            <h3 className="text-xl font-bold text-gray-800 mb-2">{league.name}</h3>
+                                            <div className="text-sm text-gray-600 space-y-1 mb-4">
+                                                <p>Créée par: {league.createdBy}</p>
+                                                <p className="font-semibold text-gray-700">Barème de points:</p>
+                                                <div className="pl-4">
+                                                    <p>• Score exact: {league.scoring.exactScore} pts</p>
+                                                    <p>• Par buteur: {league.scoring.perScorer} pts</p>
+                                                    <p>• Résultat correct: {league.scoring.correctResult} pts</p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => selectLeague(league)}
+                                                className="w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                                            >
+                                                Accéder à la ligue
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'createLeague') {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-red-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <Settings className="w-8 h-8" />
+                                    <h1 className="text-2xl font-bold">Créer une ligue</h1>
+                                </div>
+                                <button
+                                    onClick={() => setView('leagues')}
+                                    className="px-4 py-2 bg-red-700 hover:bg-red-800 rounded-lg transition flex items-center gap-2"
+                                >
+                                    <ArrowLeft className="w-4 h-4" />
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="max-w-2xl mx-auto p-6">
+                            <div className="bg-white rounded-xl shadow-md p-6 space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Nom de la ligue
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newLeagueName}
+                                        onChange={(e) => setNewLeagueName(e.target.value)}
+                                        placeholder="Ex: Ligue des amis"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <div className="border-t pt-4">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-4">Barème de points</h3>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Points pour score exact
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={pointsExactScore}
+                                                onChange={(e) => setPointsExactScore(e.target.value)}
+                                                min="0"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Points par buteur correct
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={pointsPerScorer}
+                                                onChange={(e) => setPointsPerScorer(e.target.value)}
+                                                min="0"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Points pour résultat correct (sans score exact)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={pointsCorrectResult}
+                                                onChange={(e) => setPointsCorrectResult(e.target.value)}
+                                                min="0"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={createLeague}
+                                    className="w-full py-4 bg-green-600 text-white rounded-lg font-bold text-lg hover:bg-green-700 transition shadow-lg"
+                                >
+                                    Créer la ligue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'matches') {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-red-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center gap-3">
+                                        <Trophy className="w-8 h-8" />
+                                        <div>
+                                            <h1 className="text-2xl font-bold">{currentLeague?.name}</h1>
+                                            <p className="text-red-100 text-sm">{userId}</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setCurrentLeague(null);
+                                            setView('leagues');
+                                        }}
+                                        className="px-4 py-2 bg-red-700 hover:bg-red-800 rounded-lg transition"
+                                    >
+                                        Changer de ligue
+                                    </button>
+                                </div>
+                                <div className="text-sm text-red-100">
+                                    Barème: {currentLeague?.scoring.exactScore}pts score exact | {currentLeague?.scoring.perScorer}pts/buteur | {currentLeague?.scoring.correctResult}pts résultat
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6">
+                            <div className="flex gap-4 mb-6">
+                                <button
+                                    onClick={() => setView('matches')}
+                                    className="flex-1 py-3 bg-red-600 text-white rounded-lg font-semibold flex items-center justify-center gap-2"
+                                >
+                                    <Calendar className="w-5 h-5" />
+                                    Matchs
+                                </button>
+                                <button
+                                    onClick={() => setView('myPredictions')}
+                                    className="flex-1 py-3 bg-white border-2 border-red-600 text-red-600 rounded-lg font-semibold flex items-center justify-center gap-2"
+                                >
+                                    <Award className="w-5 h-5" />
+                                    Mes Pronostics
+                                </button>
+                                <button
+                                    onClick={() => setView('leagueRanking')}
+                                    className="flex-1 py-3 bg-white border-2 border-yellow-600 text-yellow-600 rounded-lg font-semibold flex items-center justify-center gap-2"
+                                >
+                                    <BarChart3 className="w-5 h-5" />
+                                    Classement
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {MATCHES.map(match => {
+                                    const pred = predictions.find(p => p.matchId === match.id);
+                                    const realResult = matchResults.find(r => r.matchId === match.id);
+                                    return (
+                                        <div key={match.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex-1">
+                                                    <h3 className="text-xl font-bold text-gray-800 mb-1">
+                                                        Wydad vs {match.opponent}
+                                                    </h3>
+                                                    <p className="text-gray-600 text-sm">{match.date} • {match.location}</p>
+                                                    {realResult && (
+                                                        <p className="text-green-600 font-bold text-lg mt-2">
+                                                            Résultat réel: {realResult.wydadScore} - {realResult.opponentScore}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    {pred && (
+                                                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                                            Pronostic fait
+                                                        </span>
+                                                    )}
+                                                    {realResult && (
+                                                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                                                            Terminé
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => startPrediction(match)}
+                                                    className="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                                                >
+                                                    {pred ? 'Modifier le pronostic' : 'Faire mon pronostic'}
+                                                </button>
+                                                {currentLeague?.createdBy === userId && (
+                                                    <button
+                                                        onClick={() => startResultEntry(match)}
+                                                        className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center justify-center gap-2"
+                                                    >
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        {realResult ? 'Modifier résultat' : 'Entrer résultat'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'leagueRanking') {
+                const ranking = getLeagueRanking();
+
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-yellow-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <BarChart3 className="w-8 h-8" />
+                                    <div>
+                                        <h1 className="text-2xl font-bold">Classement - {currentLeague?.name}</h1>
+                                        <p className="text-yellow-100 text-sm">Meilleurs pronostiqueurs</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setView('matches')}
+                                    className="px-4 py-2 bg-yellow-700 hover:bg-yellow-800 rounded-lg transition"
+                                >
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6">
+                            {ranking.length === 0 ? (
+                                <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                                    <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-600">Aucun classement pour le moment</p>
+                                    <p className="text-gray-500 text-sm mt-2">Les points seront calculés une fois les résultats entrés</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {ranking.map((user, index) => (
+                                        <div
+                                            key={user.userId}
+                                            className={`bg-white rounded-xl shadow-md p-6 flex items-center gap-4 ${user.userId === userId ? 'ring-2 ring-red-600' : ''
+                                                }`}
+                                        >
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                                                index === 1 ? 'bg-gray-300 text-gray-700' :
+                                                    index === 2 ? 'bg-orange-400 text-orange-900' :
+                                                        'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                {index + 1}
+                                            </div>
+
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-bold text-gray-800">{user.userId}</h3>
+                                                <p className="text-sm text-gray-600">{user.predictions} pronostics</p>
+                                            </div>
+
+                                            <div className="text-right">
+                                                <p className="text-3xl font-bold text-red-600">{user.points}</p>
+                                                <p className="text-sm text-gray-600">points</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'globalRanking') {
+                const ranking = getGlobalRanking();
+
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-purple-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <Trophy className="w-8 h-8" />
+                                    <div>
+                                        <h1 className="text-2xl font-bold">Classement Global</h1>
+                                        <p className="text-purple-100 text-sm">Tous les joueurs - Toutes les ligues</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setView('leagues')}
+                                    className="px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded-lg transition"
+                                >
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6">
+                            {ranking.length === 0 ? (
+                                <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                                    <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-600">Aucun classement pour le moment</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {ranking.map((user, index) => (
+                                        <div
+                                            key={user.userId}
+                                            className={`bg-white rounded-xl shadow-md p-6 flex items-center gap-4 ${user.userId === userId ? 'ring-2 ring-purple-600' : ''
+                                                }`}
+                                        >
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                                                index === 1 ? 'bg-gray-300 text-gray-700' :
+                                                    index === 2 ? 'bg-orange-400 text-orange-900' :
+                                                        'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                {index + 1}
+                                            </div>
+
+                                            <div className="flex-1">
+                                                <h3 className="text-lg font-bold text-gray-800">{user.userId}</h3>
+                                                <p className="text-sm text-gray-600">{user.predictions} pronostics</p>
+                                            </div>
+
+                                            <div className="text-right">
+                                                <p className="text-3xl font-bold text-purple-600">{user.points}</p>
+                                                <p className="text-sm text-gray-600">points</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'myPredictions') {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-red-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <Award className="w-8 h-8" />
+                                    <h1 className="text-2xl font-bold">Mes Pronostics</h1>
+                                </div>
+                                <button
+                                    onClick={() => setView('matches')}
+                                    className="px-4 py-2 bg-red-700 hover:bg-red-800 rounded-lg transition"
+                                >
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6">
+                            {predictions.length === 0 ? (
+                                <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                                    <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-600">Aucun pronostic pour le moment</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {predictions.map(pred => {
+                                        const match = MATCHES.find(m => m.id === pred.matchId);
+                                        const realResult = matchResults.find(r => r.matchId === pred.matchId);
+                                        const points = realResult ? calculatePoints(pred, realResult, currentLeague.scoring) : null;
+
+                                        return (
+                                            <div key={pred.matchId} className="bg-white rounded-xl shadow-md p-6">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <h3 className="text-xl font-bold text-gray-800">
+                                                            Wydad vs {pred.opponent}
+                                                        </h3>
+                                                        <p className="text-gray-600 text-sm">{match?.date}</p>
+                                                    </div>
+                                                    {points !== null && (
+                                                        <div className="text-right">
+                                                            <p className="text-3xl font-bold text-green-600">{points}</p>
+                                                            <p className="text-sm text-gray-600">points</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-gray-700">Score prédit:</span>
+                                                        <span className="text-2xl font-bold text-red-600">
+                                                            {pred.wydadScore} - {pred.opponentScore}
+                                                        </span>
+                                                    </div>
+
+                                                    {realResult && (
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-semibold text-gray-700">Score réel:</span>
+                                                            <span className="text-2xl font-bold text-green-600">
+                                                                {realResult.wydadScore} - {realResult.opponentScore}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-gray-700">Résultat:</span>
+                                                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${pred.result === 'win' ? 'bg-green-100 text-green-700' :
+                                                            pred.result === 'draw' ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                            {pred.result === 'win' ? 'Victoire' : pred.result === 'draw' ? 'Match nul' : 'Défaite'}
+                                                        </span>
+                                                    </div>
+
+                                                    {pred.scorers.length > 0 && (
+                                                        <div>
+                                                            <p className="font-semibold text-gray-700 mb-2">Buteurs prédits:</p>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {pred.scorers.map(scorer => {
+                                                                    const isCorrect = realResult?.scorers.includes(scorer);
+                                                                    return (
+                                                                        <span
+                                                                            key={scorer}
+                                                                            className={`px-3 py-1 rounded-full text-sm ${isCorrect
+                                                                                ? 'bg-green-100 text-green-700 font-semibold'
+                                                                                : 'bg-blue-100 text-blue-700'
+                                                                                }`}
+                                                                        >
+                                                                            {scorer} {isCorrect && '✓'}
+                                                                        </span>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'enterResult') {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-green-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-2xl font-bold">Résultat - Wydad vs {resultMatch?.opponent}</h1>
+                                    <p className="text-green-100 text-sm">{resultMatch?.date}</p>
+                                </div>
+                                <button
+                                    onClick={() => setView('matches')}
+                                    className="px-4 py-2 bg-green-700 hover:bg-green-800 rounded-lg transition"
+                                >
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6 space-y-6">
+                            <div className="bg-white rounded-xl shadow-md p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <CheckCircle className="w-6 h-6 text-green-600" />
+                                    Score final
+                                </h2>
+
+                                <div className="grid grid-cols-3 gap-4 items-center">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                                            Wydad
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={realWydadScore}
+                                            onChange={(e) => setRealWydadScore(e.target.value)}
+                                            min="0"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                            placeholder="0"
+                                        />
+                                    </div>
+
+                                    <div className="text-center text-3xl font-bold text-gray-400">-</div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                                            {resultMatch?.opponent}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={realOpponentScore}
+                                            onChange={(e) => setRealOpponentScore(e.target.value)}
+                                            min="0"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-md p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Target className="w-6 h-6 text-green-600" />
+                                    Buteurs du match
+                                </h2>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {PLAYERS.map(player => (
+                                        <button
+                                            key={player}
+                                            onClick={() => toggleRealScorer(player)}
+                                            className={`p-3 rounded-lg text-left transition ${realScorers.includes(player)
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {player}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={submitMatchResult}
+                                className="w-full py-4 bg-green-600 text-white rounded-lg font-bold text-lg hover:bg-green-700 transition shadow-lg"
+                            >
+                                Enregistrer le résultat
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (view === 'predict') {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="bg-red-600 text-white p-6 shadow-lg">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-2xl font-bold">Wydad vs {currentMatch?.opponent}</h1>
+                                    <p className="text-red-100 text-sm">{currentMatch?.date}</p>
+                                </div>
+                                <button
+                                    onClick={() => setView('matches')}
+                                    className="px-4 py-2 bg-red-700 hover:bg-red-800 rounded-lg transition"
+                                >
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto p-6 space-y-6">
+                            <div className="bg-white rounded-xl shadow-md p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Trophy className="w-6 h-6 text-red-600" />
+                                    Score prédit
+                                </h2>
+
+                                <div className="grid grid-cols-3 gap-4 items-center">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                                            Wydad
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={wydadScore}
+                                            onChange={(e) => setWydadScore(e.target.value)}
+                                            min="0"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                            placeholder="0"
+                                        />
+                                    </div>
+
+                                    <div className="text-center text-3xl font-bold text-gray-400">-</div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                                            {currentMatch?.opponent}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={opponentScore}
+                                            onChange={(e) => setOpponentScore(e.target.value)}
+                                            min="0"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl font-bold focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-md p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Trophy className="w-6 h-6 text-red-600" />
+                                    Résultat du match
+                                </h2>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    <button
+                                        onClick={() => setResult('win')}
+                                        className={`py-4 rounded-lg font-semibold transition ${result === 'win'
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        Victoire
+                                    </button>
+                                    <button
+                                        onClick={() => setResult('draw')}
+                                        className={`py-4 rounded-lg font-semibold transition ${result === 'draw'
+                                            ? 'bg-yellow-600 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        Match nul
+                                    </button>
+                                    <button
+                                        onClick={() => setResult('lose')}
+                                        className={`py-4 rounded-lg font-semibold transition ${result === 'lose'
+                                            ? 'bg-red-600 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        Défaite
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-md p-6">
+                                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                    <Target className="w-6 h-6 text-red-600" />
+                                    Buteurs (optionnel)
+                                </h2>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {PLAYERS.map(player => (
+                                        <button
+                                            key={player}
+                                            onClick={() => toggleScorer(player)}
+                                            className={`p-3 rounded-lg text-left transition ${selectedScorers.includes(player)
+                                                ? 'bg-red-600 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {player}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={submitPrediction}
+                                className="w-full py-4 bg-red-600 text-white rounded-lg font-bold text-lg hover:bg-red-700 transition shadow-lg"
+                            >
+                                Enregistrer le pronostic
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<WydadPredictionApp />);
+    </script>
+</body>
+
+</html>

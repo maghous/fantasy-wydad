@@ -1,0 +1,62 @@
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Add token to requests
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// Auth endpoints
+export const authAPI = {
+    register: (data) => api.post('/auth/register', data),
+    login: (data) => api.post('/auth/login', data),
+    getProfile: () => api.get('/auth/me'),
+};
+
+// League endpoints
+export const leagueAPI = {
+    getAll: () => api.get('/leagues'),
+    getById: (id) => api.get(`/leagues/${id}`),
+    create: (data) => api.post('/leagues', data),
+    join: (id, code) => api.post(`/leagues/${id}/join`, { code }),
+};
+
+// Match endpoints
+export const matchAPI = {
+    getAll: () => api.get('/matches'),
+    getById: (id) => api.get(`/matches/${id}`),
+    create: (data) => api.post('/matches', data),
+};
+
+// Prediction endpoints
+export const predictionAPI = {
+    getAll: () => api.get('/predictions'),
+    getByMatch: (matchId) => api.get(`/predictions/match/${matchId}`),
+    create: (data) => api.post('/predictions', data),
+};
+
+// Result endpoints
+export const resultAPI = {
+    getByMatch: (matchId) => api.get(`/results/${matchId}`),
+    create: (data) => api.post('/results', data),
+};
+
+// Ranking endpoints
+export const rankingAPI = {
+    getLeagueRanking: (leagueId) => api.get(`/rankings/league/${leagueId}`),
+    getGlobalRanking: () => api.get('/rankings/global'),
+};
+
+export default api;
