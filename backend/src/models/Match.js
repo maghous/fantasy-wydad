@@ -13,6 +13,15 @@ const matchSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    competition: {
+        type: String,
+        enum: ['Botola', 'CAF'],
+        required: true
+    },
+    round: {
+        type: String,
+        required: false
+    },
     status: {
         type: String,
         enum: ['upcoming', 'finished'],

@@ -25,6 +25,9 @@ connectDB();
 app.use(express.json({ extended: false }));
 app.use(cors());
 
+// Root route for verification
+app.get('/', (req, res) => res.send('API Wydad Pronostics is running...'));
+
 // Define Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/leagues', require('./routes/leagues'));

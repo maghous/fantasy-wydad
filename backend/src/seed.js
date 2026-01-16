@@ -1,4 +1,6 @@
 const db = require('./utils/dbWrapper');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const matches = [
     // --- CAF CONFEDERATION CUP ---
@@ -213,6 +215,12 @@ const matches = [
 
 const seedDB = async () => {
     try {
+        if (process.env.MONGODB_URI && process.env.MONGODB_URI.startsWith('mongodb')) {
+            console.log('Connecting to MongoDB Atlas for seeding...');
+            await mongoose.connect(process.env.MONGODB_URI);
+            console.log('Connected!');
+        }
+
         console.log('Seeding matches with Botola and CAF calendars...');
 
         // Clear existing matches
@@ -225,6 +233,11 @@ const seedDB = async () => {
 
     } catch (err) {
         console.error(err);
+    } finally {
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.connection.close();
+            console.log('Connection closed.');
+        }
     }
 };
 
