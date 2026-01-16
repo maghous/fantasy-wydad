@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const autoSeed = require('./utils/autoSeed');
 
 const app = express();
 
@@ -17,6 +18,9 @@ const connectDB = async () => {
 
             await mongoose.connect(uri);
             console.log('MongoDB Connected (Cloud/Local)');
+
+            // Auto-seed if needed
+            await autoSeed();
         } else {
             console.log('Using Local JSON Database (No MongoDB URI provided)');
         }
@@ -47,3 +51,9 @@ app.use('/api/rankings', require('./routes/rankings'));
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('UNHANDLED ERROR:', err);
+    res.status(500).json({ message: 'Erreur serveur interne', error: err.message });
+});

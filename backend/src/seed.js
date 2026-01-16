@@ -1,6 +1,7 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const db = require('./utils/dbWrapper');
 const mongoose = require('mongoose');
-require('dotenv').config();
 
 const matches = [
     // --- CAF CONFEDERATION CUP ---
