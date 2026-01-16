@@ -46,10 +46,10 @@ function App() {
             path="/rankings/:leagueId"
             element={isAuthenticated ? <Rankings /> : <Navigate to="/login" />}
           />
-          {/* Admin Route */}
+          {/* Admin Route - Only for admins */}
           <Route
             path="/admin"
-            element={isAuthenticated ? <Admin /> : <Navigate to="/login" />}
+            element={isAuthenticated && useAuthStore.getState().user?.isAdmin ? <Admin /> : <Navigate to="/leagues" />}
           />
           <Route path="/" element={<Navigate to={isAuthenticated ? "/leagues" : "/login"} />} />
         </Routes>

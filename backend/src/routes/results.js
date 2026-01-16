@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('../utils/dbWrapper');
-const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 const router = express.Router();
 
@@ -16,8 +16,8 @@ router.get('/:matchId', async (req, res) => {
     }
 });
 
-// Create result
-router.post('/', auth, async (req, res) => {
+// Create/Update result (Admin only)
+router.post('/', [auth, admin], async (req, res) => {
     const { matchId, wydadScore, opponentScore, scorers } = req.body;
 
     try {

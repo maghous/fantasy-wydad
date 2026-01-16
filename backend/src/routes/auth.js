@@ -35,13 +35,14 @@ router.post(
             const user = await db.create('users', {
                 username,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                isAdmin: email.toLowerCase() === (process.env.ADMIN_EMAIL || 'admin@fantasy.com').toLowerCase()
             });
 
-            const payload = { userId: user._id };
+            const payload = { userId: user._id, isAdmin: user.isAdmin };
             const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
-            res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+            res.json({ token, user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin } });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Erreur serveur');
@@ -75,10 +76,10 @@ router.post(
                 return res.status(400).json({ message: 'Identifiants invalides' });
             }
 
-            const payload = { userId: user._id };
+            const payload = { userId: user._id, isAdmin: user.isAdmin };
             const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
-            res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+            res.json({ token, user: { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin } });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Erreur serveur');

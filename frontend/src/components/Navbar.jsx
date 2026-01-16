@@ -24,12 +24,14 @@ export default function Navbar() {
 
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2 text-wydad-100">
-                            <button
-                                onClick={() => navigate('/admin')}
-                                className="hover:text-white transition font-semibold mr-4"
-                            >
-                                Admin
-                            </button>
+                            {user?.isAdmin && (
+                                <button
+                                    onClick={() => navigate('/admin')}
+                                    className="hover:text-white transition font-semibold mr-4"
+                                >
+                                    Admin
+                                </button>
+                            )}
                             <User className="w-5 h-5" />
                             <span className="font-medium">{user?.username}</span>
                         </div>
