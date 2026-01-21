@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Trophy } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../context/useAuthStore';
 
 export default function Login() {
@@ -88,6 +89,17 @@ export default function Login() {
                             placeholder="••••••••"
                         />
                     </div>
+
+                    {isLogin && (
+                        <div className="text-right">
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm font-semibold text-wydad-600 hover:text-wydad-800 transition-colors"
+                            >
+                                Mot de passe oublié ?
+                            </Link>
+                        </div>
+                    )}
 
                     <button
                         type="submit"

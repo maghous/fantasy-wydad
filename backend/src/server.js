@@ -35,7 +35,27 @@ connectDB();
 
 // Init Middleware
 app.use(express.json({ extended: false }));
-app.use(cors());
+
+// CORS configuration (Restrict in production)
+const corsOptions = {
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            process.env.FRONTEND_URL,
+            'https://fantasy-wydad.vercel.app',
+            'https://fantasy-football-wydad.vercel.app'
+        ];
+
+        // Allow if origin is in list, or if it's a vercel sub-domain, or if no origin (local requests)
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
 // Root route for verification
 app.get('/', (req, res) => res.send('API Wydad Pronostics is running...'));
@@ -47,6 +67,7 @@ app.use('/api/matches', require('./routes/matches'));
 app.use('/api/predictions', require('./routes/predictions'));
 app.use('/api/results', require('./routes/results'));
 app.use('/api/rankings', require('./routes/rankings'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 const PORT = process.env.PORT || 5000;
 
@@ -60,6 +81,15 @@ if (require.main === module) {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error('UNHANDLED ERROR:', err);
-    res.status(500).json({ message: 'Erreur serveur interne', error: err.message });
+    console.error('UNHANDLED ERROR:', err.stack);
+
+    const status = err.status || 500;
+    const message = process.env.NODE_ENV === 'production'
+        ? 'Une erreur serveur est survenue'
+        : err.message;
+
+    res.status(status).json({
+        message,
+        error: process.env.NODE_ENV === 'production' ? null : err.stack
+    });
 });

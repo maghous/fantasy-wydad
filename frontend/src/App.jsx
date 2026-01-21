@@ -8,6 +8,11 @@ import Predictions from './pages/Predictions';
 import MyPredictions from './pages/MyPredictions';
 import Rankings from './pages/Rankings';
 import Admin from './pages/Admin';
+import ScoringGuide from './pages/ScoringGuide';
+import Profile from './pages/Profile';
+import JoinLeague from './pages/JoinLeague';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -19,7 +24,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         {isAuthenticated && <Navbar />}
         <Routes>
           <Route
@@ -51,6 +56,20 @@ function App() {
             path="/admin"
             element={isAuthenticated && useAuthStore.getState().user?.isAdmin ? <Admin /> : <Navigate to="/leagues" />}
           />
+          <Route
+            path="/scoring"
+            element={isAuthenticated ? <ScoringGuide /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/profile"
+            element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/league/join/:code"
+            element={isAuthenticated ? <JoinLeague /> : <Navigate to="/login" />}
+          />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/" element={<Navigate to={isAuthenticated ? "/leagues" : "/login"} />} />
         </Routes>
       </div>

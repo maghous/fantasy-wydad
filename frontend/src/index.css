@@ -3,8 +3,50 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --wydad-red: #c1272d;
+    --wydad-dark: #1a1a1a;
+  }
+
   body {
-    @apply m-0 min-h-screen bg-gray-50;
+    @apply m-0 min-h-screen text-gray-900 antialiased;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d0a0b 50%, #1a1a1a 100%);
+    background-attachment: fixed;
   }
 }
 
+@layer components {
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .premium-btn {
+    @apply relative overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95;
+    background: linear-gradient(90deg, #c1272d 0%, #e31e24 100%);
+  }
+
+  .premium-btn::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  }
+
+  .premium-btn:hover::after {
+    @apply opacity-100;
+  }
+}
+
+/* Custom scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1272d;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e31e24;
+}

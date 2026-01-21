@@ -24,6 +24,8 @@ export const authAPI = {
     register: (data) => api.post('/auth/register', data),
     login: (data) => api.post('/auth/login', data),
     getProfile: () => api.get('/auth/me'),
+    forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+    resetPassword: (token, password) => api.post(`/auth/reset-password/${token}`, { password }),
 };
 
 // League endpoints
@@ -31,13 +33,14 @@ export const leagueAPI = {
     getAll: () => api.get('/leagues'),
     getById: (id) => api.get(`/leagues/${id}`),
     create: (data) => api.post('/leagues', data),
-    join: (id, code) => api.post(`/leagues/${id}/join`, { code }),
+    join: (code) => api.post('/leagues/join', { code }),
 };
 
 // Match endpoints
 export const matchAPI = {
     getAll: () => api.get('/matches'),
     getById: (id) => api.get(`/matches/${id}`),
+    getNextMatch: () => api.get('/matches/next'),
     create: (data) => api.post('/matches', data),
 };
 
@@ -58,6 +61,18 @@ export const resultAPI = {
 export const rankingAPI = {
     getLeagueRanking: (leagueId) => api.get(`/rankings/league/${leagueId}`),
     getGlobalRanking: () => api.get('/rankings/global'),
+};
+
+// User endpoints
+export const userAPI = {
+    getProfile: () => api.get('/auth/me'),
+};
+
+// Notification endpoints
+export const notificationAPI = {
+    getAll: () => api.get('/notifications'),
+    markAllRead: () => api.put('/notifications/read-all'),
+    sendReminder: (matchId) => api.post(`/notifications/remind/${matchId}`),
 };
 
 export default api;

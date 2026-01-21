@@ -8,7 +8,12 @@ module.exports = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('CRITICAL: JWT_SECRET is not defined in environment variables.');
+            return res.status(500).json({ message: 'Erreur de configuration serveur' });
+        }
+        const decoded = jwt.verify(token, secret);
         req.user = decoded;
         next();
     } catch (err) {

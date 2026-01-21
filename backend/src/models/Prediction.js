@@ -27,6 +27,13 @@ const predictionSchema = new mongoose.Schema({
     scorers: [{
         type: String
     }],
+    advancedEvents: [{
+        category: { type: String, required: true }, // 'buteur', 'time', 'combination'
+        type: { type: String, required: true },     // 'anytime', 'first', 'brace', 'interval_0_15', etc.
+        player: String,                             // Name of the player (optional for some types)
+        value: Number,                              // For 'exact_k' or numeric values
+        pointsEarned: { type: Number, default: 0 }  // To store points allocated per event
+    }],
     timestamp: {
         type: Date,
         default: Date.now

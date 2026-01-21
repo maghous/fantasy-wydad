@@ -1,12 +1,13 @@
 const express = require('express');
 const db = require('../utils/dbWrapper');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 const router = express.Router();
 
 // Get all matches
 router.get('/', async (req, res) => {
     try {
         const matches = await db.find('matches');
-        // Sort logic would be here if needed
         res.json(matches);
     } catch (err) {
         console.error(err.message);
@@ -14,8 +15,23 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Create match
-router.post('/', async (req, res) => {
+// Get next match
+router.get('/next', async (req, res) => {
+    try {
+        const matches = await db.find('matches', { status: 'upcoming' });
+        if (!matches || matches.length === 0) return res.status(404).json({ message: 'Aucun match à venir' });
+
+        // Sort by date ASC
+        const sorted = matches.sort((a, b) => new Date(a.date) - new Date(b.date));
+        res.json(sorted[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur serveur');
+    }
+});
+
+// Create match (Admin only)
+router.post('/', [auth, admin], async (req, res) => {
     const { opponent, date, location } = req.body;
 
     try {
@@ -46,9 +62,11 @@ router.get('/:id', async (req, res) => {
 
 // Secure seeding route (internal use)
 router.post('/seed-matches', async (req, res) => {
-    // Basic protection
+    // Basic protection using environment variable
     const { secret } = req.body;
-    if (secret !== 'wydad_seed_2026') {
+    const seedSecret = process.env.SEED_SECRET;
+
+    if (!seedSecret || secret !== seedSecret) {
         return res.status(403).json({ message: 'Accès refusé' });
     }
 

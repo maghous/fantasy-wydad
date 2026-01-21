@@ -11,6 +11,13 @@ router.get('/league/:leagueId', auth, async (req, res) => {
         const league = await db.findById('leagues', req.params.leagueId);
         if (!league) return res.status(404).json({ message: 'Ligue non trouvée' });
 
+        // Check membership
+        const userId = req.user.userId.toString();
+        const memberIds = league.members.map(m => m.toString());
+        if (!memberIds.includes(userId)) {
+            return res.status(403).json({ message: 'Accès refusé. Vous n\'êtes pas membre de cette ligue.' });
+        }
+
         const predictions = await db.find('predictions');
         const results = await db.find('results');
 
@@ -23,13 +30,14 @@ router.get('/league/:leagueId', auth, async (req, res) => {
 
         predictions.forEach(pred => {
             // Check if user is in league
-            if (!league.members.includes(pred.userId)) return;
+            const pUserId = pred.userId.toString();
+            if (!memberIds.includes(pUserId)) return;
 
-            const result = results.find(r => r.matchId === pred.matchId);
+            const result = results.find(r => r.matchId.toString() === pred.matchId.toString());
 
-            if (!userPoints[pred.userId]) {
-                userPoints[pred.userId] = {
-                    userId: userMap[pred.userId] || { _id: pred.userId, username: 'Unknown' },
+            if (!userPoints[pUserId]) {
+                userPoints[pUserId] = {
+                    userId: userMap[pUserId] || { _id: pUserId, username: 'Unknown' },
                     points: 0,
                     predictions: 0,
                     exactScores: 0,
@@ -37,13 +45,13 @@ router.get('/league/:leagueId', auth, async (req, res) => {
                 };
             }
 
-            userPoints[pred.userId].predictions++;
+            userPoints[pUserId].predictions++;
 
             if (result) {
                 const { total, details } = calculatePoints(pred, result, league.scoring);
-                userPoints[pred.userId].points += total;
-                if (details.exactScore) userPoints[pred.userId].exactScores++;
-                if (details.correctResult) userPoints[pred.userId].correctResults++;
+                userPoints[pUserId].points += total;
+                if (details.exactScore) userPoints[pUserId].exactScores++;
+                if (details.correctResult) userPoints[pUserId].correctResults++;
             }
         });
 
@@ -70,11 +78,12 @@ router.get('/global', async (req, res) => {
         const userPoints = {};
 
         predictions.forEach(pred => {
-            const result = results.find(r => r.matchId === pred.matchId);
+            const pUserId = pred.userId.toString();
+            const result = results.find(r => r.matchId.toString() === pred.matchId.toString());
 
-            if (!userPoints[pred.userId]) {
-                userPoints[pred.userId] = {
-                    userId: userMap[pred.userId] || { _id: pred.userId, username: 'Unknown' },
+            if (!userPoints[pUserId]) {
+                userPoints[pUserId] = {
+                    userId: userMap[pUserId] || { _id: pUserId, username: 'Unknown' },
                     points: 0,
                     predictions: 0,
                     exactScores: 0,
@@ -82,13 +91,13 @@ router.get('/global', async (req, res) => {
                 };
             }
 
-            userPoints[pred.userId].predictions++;
+            userPoints[pUserId].predictions++;
 
             if (result) {
                 const { total, details } = calculatePoints(pred, result, defaultScoring);
-                userPoints[pred.userId].points += total;
-                if (details.exactScore) userPoints[pred.userId].exactScores++;
-                if (details.correctResult) userPoints[pred.userId].correctResults++;
+                userPoints[pUserId].points += total;
+                if (details.exactScore) userPoints[pUserId].exactScores++;
+                if (details.correctResult) userPoints[pUserId].correctResults++;
             }
         });
 

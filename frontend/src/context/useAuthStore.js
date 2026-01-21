@@ -32,7 +32,7 @@ export const useAuthStore = create((set) => ({
             set({ user, token, isAuthenticated: true, loading: false });
             return { success: true };
         } catch (error) {
-            const message = error.response?.data?.message || 'Erreur d\'inscription';
+            const message = error.response?.data?.error || error.response?.data?.message || 'Erreur d\'inscription';
             set({ error: message, loading: false });
             return { success: false, error: message };
         }

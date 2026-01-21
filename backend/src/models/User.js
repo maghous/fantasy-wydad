@@ -25,6 +25,19 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    badges: [{
+        name: String,
+        icon: String,
+        dateAwarded: { type: Date, default: Date.now }
+    }],
+    stats: {
+        totalPoints: { type: Number, default: 0 },
+        exactScores: { type: Number, default: 0 },
+        correctResults: { type: Number, default: 0 },
+        totalPredictions: { type: Number, default: 0 }
+    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     createdAt: {
         type: Date,
         default: Date.now

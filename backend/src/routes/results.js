@@ -41,6 +41,13 @@ router.post('/', [auth, admin], async (req, res) => {
 
             // Update match status
             await db.update('matches', matchId, { status: 'finished' });
+
+            // Trigger global stats & badge update for all participants
+            const { updateUserStats } = require('../utils/userStatsUpdater');
+            const matchPredictions = await db.find('predictions', { matchId });
+            for (const pred of matchPredictions) {
+                await updateUserStats(pred.userId);
+            }
         }
 
         res.json(result);
