@@ -18,43 +18,41 @@ Pour que vos amis gardent leurs comptes et pronostics, **vous DEVEZ utiliser Mon
 
 ---
 
-## Étape 2 : Déployer le Backend (Render.com)
+## Étape 2 : Déployer le Backend (Vercel - Gratuit)
 
-1.  Créez un compte sur [Render](https://render.com).
-2.  Cliquez sur "New +" > "Web Service".
-3.  Connectez votre compte GitHub et sélectionnez votre dépôt (il faudra d'abord mettre votre code sur GitHub).
-4.  **Configuration** :
-    *   **Name** : `wydad-backend`
-    *   **Root Directory** : `backend`
-    *   **Environment** : `Node`
-    *   **Build Command** : `npm install`
-    *   **Start Command** : `node src/server.js`
-5.  **Variables d'environnement** (Section "Environment Variables") :
-    *   `MONGODB_URI` : Collez l'URL de votre MongoDB Atlas (Étape 1).
-    *   `JWT_SECRET` : Mettez un mot de passe compliqué (ex: `votre_secret_tres_long`).
-6.  Cliquez sur "Create Web Service".
-7.  **Notez l'URL de votre backend** (ex: `https://wydad-backend.onrender.com`).
+1.  Assurez-vous que votre code est sur GitHub.
+2.  Allez sur [Vercel](https://vercel.com) et connectez-vous.
+3.  Cliquez sur "Add New..." > "Project".
+4.  Importez votre dépôt GitHub `Fantasywydad`.
+5.  **Configuration** :
+    *   **Root Directory** : Cliquez sur "Edit" et sélectionnez le dossier `backend`.
+    *   **Framework Preset** : Other (Laissez par défaut ou "Other").
+6.  **Variables d'environnement** :
+    *   `MONGODB_URI` : Collez l'URL de votre MongoDB Atlas.
+    *   `JWT_SECRET` : Votre secret JWT.
+7.  Cliquez sur "Deploy".
+8.  **Notez l'URL fournie par Vercel** (ex: `https://fantasywydad-backend.vercel.app`).
 
 ---
 
 ## Étape 3 : Déployer le Frontend (Vercel)
 
-1.  Créez un compte sur [Vercel](https://vercel.com).
+1.  Retournez sur le tableau de bord Vercel.
 2.  Cliquez sur "Add New..." > "Project".
-3.  Importez votre dépôt GitHub.
+3.  Importez **le même dépôt GitHub**.
 4.  **Configuration** :
-    *   **Framework Preset** : Vite
     *   **Root Directory** : Cliquez sur "Edit" et sélectionnez le dossier `frontend`.
+    *   **Framework Preset** : Vite.
 5.  **Variables d'environnement** :
-    *   `VITE_API_URL` : Collez l'URL de votre backend Render (ex: `https://wydad-backend.onrender.com`).
+    *   `VITE_API_URL` : Collez l'URL de votre **Backend Vercel** que vous venez de créer (ex: `https://fantasywydad-backend.vercel.app`).
+        *   ⚠️ **Important** : N'ajoutez pas de `/` à la fin de l'URL.
 6.  Cliquez sur "Deploy".
 
 ---
 
 ## 🎉 C'est fini !
 
-Vercel vous donnera un lien (ex: `https://fantasywydad.vercel.app`).
-Envoyez ce lien à vos amis pour qu'ils s'inscrivent !
-
-### 💡 Note pour le Backend
-Sur Render version gratuite, le serveur "s'endort" après 15 min d'inactivité. Le premier chargement peut prendre 30 à 50 secondes. C'est normal !
+Vous avez maintenant :
+*   Base de données : **MongoDB Atlas** (Gratuit)
+*   Backend : **Vercel** (Gratuit)
+*   Frontend : **Vercel** (Gratuit)
