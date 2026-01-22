@@ -404,6 +404,27 @@ export default function Leagues() {
                                         <p className="text-2xl font-mono font-black text-white tracking-[0.2em]">{league.joinCode}</p>
                                     </div>
                                 )}
+
+                                {/* Participants List */}
+                                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-3 flex items-center gap-2">
+                                        <Users className="w-3 h-3" />
+                                        Participants ({league.members?.length || 0})
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {league.members?.map((member, idx) => (
+                                            <span
+                                                key={idx}
+                                                className={`px-2 py-1 rounded text-[10px] font-bold ${member.username === user?.username
+                                                        ? 'bg-red-600 text-white'
+                                                        : 'bg-white/10 text-gray-300'
+                                                    }`}
+                                            >
+                                                {member.username}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex flex-col gap-3">
                                 <button

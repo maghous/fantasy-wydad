@@ -9,16 +9,24 @@ router.get('/', auth, async (req, res) => {
     try {
         const leagues = await db.find('leagues', { members: req.user.userId });
 
-        // Populate createdBy (simple version)
-        const leaguesWithCreator = await Promise.all(leagues.map(async (league) => {
+        // Populate createdBy and members (usernames only)
+        const enrichedLeagues = await Promise.all(leagues.map(async (league) => {
             const creator = await db.findById('users', league.createdBy);
+
+            // Fetch all members' usernames
+            const membersData = await Promise.all(league.members.map(async (mId) => {
+                const user = await db.findById('users', mId);
+                return user ? { _id: user._id, username: user.username } : null;
+            }));
+
             return {
                 ...league,
-                createdBy: creator ? { username: creator.username } : null
+                createdBy: creator ? { username: creator.username } : null,
+                members: membersData.filter(m => m !== null)
             };
         }));
 
-        res.json(leaguesWithCreator);
+        res.json(enrichedLeagues);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Erreur serveur');
@@ -100,7 +108,18 @@ router.get('/:id', auth, async (req, res) => {
             return res.status(403).json({ message: 'Accès refusé. Vous n\'êtes pas membre de cette ligue.' });
         }
 
-        res.json(league);
+        // Populate members usernames
+        const membersData = await Promise.all(league.members.map(async (mId) => {
+            const user = await db.findById('users', mId);
+            return user ? { _id: user._id, username: user.username } : null;
+        }));
+
+        const enrichedLeague = {
+            ...league,
+            members: membersData.filter(m => m !== null)
+        };
+
+        res.json(enrichedLeague);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Erreur serveur');
