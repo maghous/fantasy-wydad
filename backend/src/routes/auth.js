@@ -173,4 +173,27 @@ router.post('/reset-password/:token',
     }
 );
 
+// Temporary Secret Promotion Route (Use this to become admin online)
+// URL: /api/auth/promote-secret/[email]/[SEED_SECRET]
+router.get('/promote-secret/:email/:secret', async (req, res) => {
+    const { email, secret } = req.params;
+
+    // Check if the secret matches the one in .env
+    if (secret !== process.env.SEED_SECRET) {
+        return res.status(403).json({ message: 'Secret invalide' });
+    }
+
+    try {
+        const user = await db.findOne('users', { email: email.toLowerCase() });
+        if (!user) {
+            return res.status(404).json({ message: 'Utilisateur non trouvé sur ce serveur' });
+        }
+
+        await db.update('users', user._id, { isAdmin: true });
+        res.json({ message: `L'utilisateur ${email} est maintenant ADMINISTRATEUR !` });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors de la promotion', error: err.message });
+    }
+});
+
 module.exports = router;
