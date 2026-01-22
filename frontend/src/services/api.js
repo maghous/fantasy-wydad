@@ -75,4 +75,8 @@ export const notificationAPI = {
     sendReminder: (matchId) => api.post(`/notifications/remind/${matchId}`),
 };
 
+export const adminAPI = {
+    getStats: () => api.get('/admin/stats'),
+};
+
 export default api;

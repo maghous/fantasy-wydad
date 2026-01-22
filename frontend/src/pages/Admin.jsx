@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { matchAPI, resultAPI, notificationAPI } from '../services/api';
-import { BellRing, Loader2 } from 'lucide-react';
+import { matchAPI, resultAPI, notificationAPI, adminAPI } from '../services/api';
+import { BellRing, Loader2, Users, Trophy, ClipboardList, Target } from 'lucide-react';
 
 const PLAYERS = [
     "El Mehdi Benabid", "Abdelali Mhamdi", "Aymen El Jaafary",
@@ -25,6 +25,12 @@ export default function Admin() {
         wydadScore: '',
         opponentScore: '',
     });
+    const [stats, setStats] = useState({
+        usersCount: 0,
+        leaguesCount: 0,
+        predictionsCount: 0,
+        matchesCount: 0
+    });
     const [events, setEvents] = useState([]);
     const [newEvent, setNewEvent] = useState({
         type: 'goal',
@@ -37,7 +43,17 @@ export default function Admin() {
 
     useEffect(() => {
         loadMatches();
+        loadStats();
     }, []);
+
+    const loadStats = async () => {
+        try {
+            const res = await adminAPI.getStats();
+            setStats(res.data);
+        } catch (err) {
+            console.error('Erreur stats:', err);
+        }
+    };
 
     const loadMatches = async () => {
         const res = await matchAPI.getAll();
@@ -141,6 +157,38 @@ export default function Admin() {
             <h1 className="text-4xl font-black mb-12 uppercase tracking-widest border-b-4 border-red-600 pb-2 inline-block italic">
                 ADMIN <span className="text-red-600">CENTRAL</span>
             </h1>
+
+            {/* Quick Stats Banner */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div className="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-red-600 flex items-center gap-4">
+                    <div className="bg-red-50 p-3 rounded-xl"><Users className="text-red-600 w-6 h-6" /></div>
+                    <div>
+                        <div className="text-2xl font-black text-gray-900">{stats.usersCount}</div>
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Utilisateurs</div>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-gray-900 flex items-center gap-4">
+                    <div className="bg-gray-50 p-3 rounded-xl"><Trophy className="text-gray-900 w-6 h-6" /></div>
+                    <div>
+                        <div className="text-2xl font-black text-gray-900">{stats.leaguesCount}</div>
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Ligues</div>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-red-600 flex items-center gap-4">
+                    <div className="bg-red-50 p-3 rounded-xl"><ClipboardList className="text-red-600 w-6 h-6" /></div>
+                    <div>
+                        <div className="text-2xl font-black text-gray-900">{stats.predictionsCount}</div>
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pronos</div>
+                    </div>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-gray-900 flex items-center gap-4">
+                    <div className="bg-gray-50 p-3 rounded-xl"><Target className="text-gray-900 w-6 h-6" /></div>
+                    <div>
+                        <div className="text-2xl font-black text-gray-900">{stats.matchesCount}</div>
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Matchs</div>
+                    </div>
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Match List - Left Column */}
