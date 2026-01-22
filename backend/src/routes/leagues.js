@@ -126,4 +126,31 @@ router.get('/:id', auth, async (req, res) => {
     }
 });
 
+// Leave a league
+router.post('/:id/leave', auth, async (req, res) => {
+    try {
+        const league = await db.findById('leagues', req.params.id);
+        if (!league) {
+            return res.status(404).json({ message: 'Ligue non trouvée' });
+        }
+
+        // Check if user is the creator (Owner cannot leave)
+        if (league.createdBy.toString() === req.user.userId.toString()) {
+            return res.status(400).json({ message: 'Le créateur ne peut pas quitter sa propre ligue. Supprimez-la plutôt.' });
+        }
+
+        // Remove member
+        const updatedMembers = league.members.filter(m => m.toString() !== req.user.userId.toString());
+
+        await db.update('leagues', league._id, {
+            members: updatedMembers
+        });
+
+        res.json({ message: 'Vous avez quitté la ligue avec succès' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: 'Erreur serveur', error: err.message });
+    }
+});
+
 module.exports = router;

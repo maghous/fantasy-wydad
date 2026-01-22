@@ -34,6 +34,7 @@ export const leagueAPI = {
     getById: (id) => api.get(`/leagues/${id}`),
     create: (data) => api.post('/leagues', data),
     join: (code) => api.post('/leagues/join', { code }),
+    leave: (id) => api.post(`/leagues/${id}/leave`),
 };
 
 // Match endpoints

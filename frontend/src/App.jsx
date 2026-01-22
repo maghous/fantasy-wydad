@@ -66,7 +66,7 @@ function App() {
           />
           <Route
             path="/league/join/:code"
-            element={isAuthenticated ? <JoinLeague /> : <Navigate to="/login" />}
+            element={<JoinLeague />}
           />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />

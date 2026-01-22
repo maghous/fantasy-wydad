@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { leagueAPI } from '../services/api';
+import { useAuthStore } from '../context/useAuthStore';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 const JoinLeague = () => {
@@ -9,7 +10,16 @@ const JoinLeague = () => {
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState('');
 
+    const { user } = useAuthStore();
+
     useEffect(() => {
+        if (!user) {
+            // Save attempt to join in session to potentially handle after login
+            sessionStorage.setItem('pendingJoinCode', code);
+            navigate('/login');
+            return;
+        }
+
         const join = async () => {
             try {
                 await leagueAPI.join(code);
@@ -21,7 +31,7 @@ const JoinLeague = () => {
             }
         };
         join();
-    }, [code, navigate]);
+    }, [code, navigate, user]);
 
     return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-[#1a1a1a]">

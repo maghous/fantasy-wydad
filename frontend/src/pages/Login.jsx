@@ -16,10 +16,19 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        let result;
         if (isLogin) {
-            await login({ email: formData.email, password: formData.password });
+            result = await login({ email: formData.email, password: formData.password });
         } else {
-            await register(formData);
+            result = await register(formData);
+        }
+
+        if (result?.success) {
+            const pendingCode = sessionStorage.getItem('pendingJoinCode');
+            if (pendingCode) {
+                sessionStorage.removeItem('pendingJoinCode');
+                window.location.href = `/league/join/${pendingCode}`;
+            }
         }
     };
 

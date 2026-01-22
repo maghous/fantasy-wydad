@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, BarChart3, Timer, Calendar, MapPin } from 'lucide-react';
+import { Users, Plus, BarChart3, Timer, Calendar, MapPin, LogOut } from 'lucide-react';
 import { leagueAPI, matchAPI } from '../services/api';
 import { useAuthStore } from '../context/useAuthStore';
 
@@ -49,6 +49,19 @@ export default function Leagues() {
             console.error('Erreur de chargement des ligues:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleLeaveLeague = async (leagueId, leagueName) => {
+        if (!window.confirm(`Voulez-vous vraiment quitter la ligue "${leagueName}" ?`)) return;
+
+        try {
+            await leagueAPI.leave(leagueId);
+            alert('Vous avez quitté la ligue.');
+            loadLeagues();
+        } catch (error) {
+            const message = error.response?.data?.message || 'Erreur lors de la sortie de la ligue';
+            alert(message);
         }
     };
 
@@ -416,8 +429,8 @@ export default function Leagues() {
                                             <span
                                                 key={idx}
                                                 className={`px-2 py-1 rounded text-[10px] font-bold ${member.username === user?.username
-                                                        ? 'bg-red-600 text-white'
-                                                        : 'bg-white/10 text-gray-300'
+                                                    ? 'bg-red-600 text-white'
+                                                    : 'bg-white/10 text-gray-300'
                                                     }`}
                                             >
                                                 {member.username}
@@ -451,6 +464,15 @@ export default function Leagues() {
                                     <Plus className="w-4 h-4" />
                                     Inviter des amis
                                 </button>
+                                {league.createdBy?.username !== user?.username && (
+                                    <button
+                                        onClick={() => handleLeaveLeague(league._id, league.name)}
+                                        className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition font-bold flex items-center justify-center gap-2 border border-gray-200 uppercase text-xs"
+                                    >
+                                        <LogOut className="w-4 h-4" />
+                                        Quitter la ligue
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
