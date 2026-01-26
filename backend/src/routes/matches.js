@@ -60,6 +60,27 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Update match (Admin only)
+router.put('/:id', [auth, admin], async (req, res) => {
+    const { opponent, date, location, competition, round, status } = req.body;
+
+    try {
+        const match = await db.update('matches', req.params.id, {
+            opponent,
+            date,
+            location,
+            competition,
+            round,
+            status
+        });
+        if (!match) return res.status(404).json({ message: 'Match non trouvé' });
+        res.json(match);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur serveur');
+    }
+});
+
 // Secure seeding route (internal use)
 router.post('/seed-matches', async (req, res) => {
     // Basic protection using environment variable

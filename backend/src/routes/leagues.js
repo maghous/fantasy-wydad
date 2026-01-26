@@ -153,4 +153,37 @@ router.post('/:id/leave', auth, async (req, res) => {
     }
 });
 
+// Get predictions for all members of a league for a specific match
+router.get('/:leagueId/predictions/:matchId', auth, async (req, res) => {
+    try {
+        const league = await db.findById('leagues', req.params.leagueId);
+        if (!league) return res.status(404).json({ message: 'Ligue non trouvée' });
+
+        // Check membership
+        const userId = req.user.userId.toString();
+        const memberIds = league.members.map(m => m.toString());
+        if (!memberIds.includes(userId)) {
+            return res.status(403).json({ message: 'Accès refusé' });
+        }
+
+        const predictions = await Promise.all(league.members.map(async (mId) => {
+            const user = await db.findById('users', mId);
+            const userPreds = await db.find('predictions', {
+                userId: mId,
+                matchId: req.params.matchId
+            });
+
+            return {
+                user: { _id: user._id, username: user.username },
+                prediction: userPreds[0] || null
+            };
+        }));
+
+        res.json(predictions);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erreur serveur');
+    }
+});
+
 module.exports = router;

@@ -43,12 +43,14 @@ export const matchAPI = {
     getById: (id) => api.get(`/matches/${id}`),
     getNextMatch: () => api.get('/matches/next'),
     create: (data) => api.post('/matches', data),
+    update: (id, data) => api.put(`/matches/${id}`, data),
 };
 
 // Prediction endpoints
 export const predictionAPI = {
     getAll: () => api.get('/predictions'),
     getByMatch: (matchId) => api.get(`/predictions/match/${matchId}`),
+    getByLeague: (leagueId, matchId) => api.get(`/predictions/league/${leagueId}/${matchId}`),
     create: (data) => api.post('/predictions', data),
 };
 
@@ -78,6 +80,15 @@ export const notificationAPI = {
 
 export const adminAPI = {
     getStats: () => api.get('/admin/stats'),
+};
+
+export const statsAPI = {
+    getGlobal: () => api.get('/stats/global'),
+};
+
+export const messagesAPI = {
+    getByLeague: (leagueId) => api.get(`/messages/${leagueId}`),
+    post: (data) => api.post('/messages', data),
 };
 
 export default api;

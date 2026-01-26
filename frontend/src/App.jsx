@@ -13,14 +13,26 @@ import Profile from './pages/Profile';
 import JoinLeague from './pages/JoinLeague';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Stats from './pages/Stats';
 import Navbar from './components/Navbar';
 
 function App() {
-  const { isAuthenticated, loadUser } = useAuthStore();
+  const { isAuthenticated, loadUser, loading } = useAuthStore();
 
   useEffect(() => {
     loadUser();
   }, [loadUser]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-white font-black uppercase tracking-widest animate-pulse">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>
@@ -59,6 +71,10 @@ function App() {
           <Route
             path="/scoring"
             element={isAuthenticated ? <ScoringGuide /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/stats"
+            element={isAuthenticated ? <Stats /> : <Navigate to="/login" />}
           />
           <Route
             path="/profile"

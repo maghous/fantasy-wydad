@@ -59,6 +59,12 @@ export default function Navbar() {
                             >
                                 Règles
                             </button>
+                            <button
+                                onClick={() => navigate('/stats')}
+                                className="hover:text-white transition font-semibold mr-4 text-red-200"
+                            >
+                                Stats Fans
+                            </button>
 
                             <div className="relative">
                                 <button

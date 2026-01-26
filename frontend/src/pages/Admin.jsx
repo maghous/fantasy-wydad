@@ -212,21 +212,45 @@ export default function Admin() {
                                     {new Date(match.date).toLocaleDateString('fr-FR')}
                                 </div>
                                 {match.status === 'upcoming' && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleSendReminder(match._id);
-                                        }}
-                                        disabled={sendingReminder === match._id}
-                                        className="mt-3 w-full flex items-center justify-center gap-2 py-2 bg-gray-900 text-white text-[10px] font-black uppercase rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
-                                    >
-                                        {sendingReminder === match._id ? (
-                                            <Loader2 className="w-3 h-3 animate-spin" />
-                                        ) : (
-                                            <BellRing className="w-3 h-3" />
-                                        )}
-                                        Rappel Pronos
-                                    </button>
+                                    <div className="mt-3 flex flex-col gap-2">
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="datetime-local"
+                                                className="flex-1 p-2 bg-gray-50 border border-gray-200 rounded text-[10px] font-bold"
+                                                id={`date-${match._id}`}
+                                                defaultValue={new Date(match.date).toISOString().slice(0, 16)}
+                                            />
+                                            <button
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    const newDate = document.getElementById(`date-${match._id}`).value;
+                                                    try {
+                                                        await matchAPI.update(match._id, { ...match, date: newDate });
+                                                        alert('Date mise à jour !');
+                                                        loadMatches();
+                                                    } catch (err) { alert('Erreur'); }
+                                                }}
+                                                className="px-2 py-1 bg-green-600 text-white text-[10px] font-black uppercase rounded hover:bg-green-700"
+                                            >
+                                                OK
+                                            </button>
+                                        </div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSendReminder(match._id);
+                                            }}
+                                            disabled={sendingReminder === match._id}
+                                            className="w-full flex items-center justify-center gap-2 py-2 bg-gray-900 text-white text-[10px] font-black uppercase rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                                        >
+                                            {sendingReminder === match._id ? (
+                                                <Loader2 className="w-3 h-3 animate-spin" />
+                                            ) : (
+                                                <BellRing className="w-3 h-3" />
+                                            )}
+                                            Rappel Pronos
+                                        </button>
+                                    </div>
                                 )}
                             </button>
                         ))}

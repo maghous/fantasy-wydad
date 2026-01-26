@@ -69,6 +69,8 @@ app.use('/api/results', require('./routes/results'));
 app.use('/api/rankings', require('./routes/rankings'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/stats', require('./routes/stats'));
+app.use('/api/messages', require('./routes/messages'));
 
 const PORT = process.env.PORT || 5000;
 
