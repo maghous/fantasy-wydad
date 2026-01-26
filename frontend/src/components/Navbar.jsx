@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LogOut, User, Bell } from 'lucide-react';
 import { useAuthStore } from '../context/useAuthStore';
 import { notificationAPI } from '../services/api';
 import NotificationCenter from './NotificationCenter';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user, logout } = useAuthStore();
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -40,7 +43,7 @@ export default function Navbar() {
                         className="flex items-center gap-2 cursor-pointer"
                         onClick={() => navigate('/leagues')}
                     >
-                        <span className="text-2xl font-bold">⚽ Wydad Pronostics</span>
+                        <span className="text-2xl font-bold">⚽ {t('brand')}</span>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -50,21 +53,25 @@ export default function Navbar() {
                                     onClick={() => navigate('/admin')}
                                     className="hover:text-white transition font-semibold mr-4"
                                 >
-                                    Admin
+                                    {t('common.admin')}
                                 </button>
                             )}
                             <button
                                 onClick={() => navigate('/scoring')}
                                 className="hover:text-white transition font-semibold mr-4"
                             >
-                                Règles
+                                {t('common.rules')}
                             </button>
                             <button
                                 onClick={() => navigate('/stats')}
                                 className="hover:text-white transition font-semibold mr-4 text-red-200"
                             >
-                                Stats Fans
+                                {t('common.stats')}
                             </button>
+
+                            <div className="mr-4">
+                                <LanguageSwitcher />
+                            </div>
 
                             <div className="relative">
                                 <button
@@ -97,7 +104,7 @@ export default function Navbar() {
                             className="px-4 py-2 bg-wydad-700 hover:bg-wydad-800 rounded-lg transition flex items-center gap-2"
                         >
                             <LogOut className="w-4 h-4" />
-                            Déconnexion
+                            {t('common.logout')}
                         </button>
                     </div>
                 </div>

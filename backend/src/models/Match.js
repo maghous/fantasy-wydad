@@ -5,6 +5,10 @@ const matchSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    opponentLogo: {
+        type: String,
+        required: false
+    },
     date: {
         type: Date,
         required: true
@@ -26,6 +30,10 @@ const matchSchema = new mongoose.Schema({
         type: String,
         enum: ['upcoming', 'finished'],
         default: 'upcoming'
+    },
+    isLocked: {
+        type: Boolean,
+        default: false
     }
 });
 

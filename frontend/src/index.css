@@ -20,6 +20,31 @@
     @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
   }
   
+  /* Low Performance Mode Overrides */
+  .low-perf {
+    background: #1a1a1a !important; /* Solid background */
+    background-attachment: scroll !important;
+  }
+
+  .low-perf .glass-card, 
+  .low-perf .backdrop-blur-md,
+  .low-perf .backdrop-blur-xl,
+  .low-perf .backdrop-blur-sm {
+    backdrop-filter: none !important;
+    background-color: rgba(40, 40, 40, 0.95) !important;
+  }
+
+  .low-perf .premium-btn {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .low-perf * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
   .premium-btn {
     @apply relative overflow-hidden transition-all duration-300 transform hover:scale-105 active:scale-95;
     background: linear-gradient(90deg, #c1272d 0%, #e31e24 100%);

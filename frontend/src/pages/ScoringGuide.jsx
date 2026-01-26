@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Target,
     Trophy,
@@ -12,74 +13,75 @@ import {
 } from 'lucide-react';
 
 const ScoringGuide = () => {
+    const { t } = useTranslation();
     const indicators = [
         {
             id: 'score',
-            title: 'Score Exact',
-            description: 'Prédisez le score final exact du match (ex: 2-1).',
+            title: t('scoring_guide.score.title'),
+            description: t('scoring_guide.score.desc'),
             icon: <Target className="w-8 h-8 text-red-600" />,
             color: 'bg-red-50'
         },
         {
             id: 'result',
-            title: 'Résultat Correct',
-            description: 'Prédisez l\'issue du match (Victoire, Nul, ou Défaite) sans le score exact.',
+            title: t('scoring_guide.result.title'),
+            description: t('scoring_guide.result.desc'),
             icon: <Trophy className="w-8 h-8 text-yellow-600" />,
             color: 'bg-yellow-50'
         },
         {
             id: 'scorer',
-            title: 'Buteur Anytime',
-            description: 'Sélectionnez un joueur qui marquera à n\'importe quel moment du match.',
+            title: t('scoring_guide.scorer.title'),
+            description: t('scoring_guide.scorer.desc'),
             icon: <User className="w-8 h-8 text-blue-600" />,
             color: 'bg-blue-50'
         },
         {
             id: 'interval',
-            title: 'Intervalles de Buts',
-            description: 'Devinez dans quelle tranche de 15 minutes un but sera marqué.',
+            title: t('scoring_guide.interval.title'),
+            description: t('scoring_guide.interval.desc'),
             icon: <Clock className="w-8 h-8 text-green-600" />,
             color: 'bg-green-50'
         },
         {
             id: 'first_scorer',
-            title: 'Premier Buteur',
-            description: 'Identifiez le joueur qui ouvrira le score du match.',
+            title: t('scoring_guide.first_scorer.title'),
+            description: t('scoring_guide.first_scorer.desc'),
             icon: <Zap className="w-8 h-8 text-purple-600" />,
             color: 'bg-purple-50'
         },
         {
             id: 'last_scorer',
-            title: 'Dernier Buteur',
-            description: 'Identifiez le joueur qui marquera le tout dernier but de la rencontre.',
+            title: t('scoring_guide.last_scorer.title'),
+            description: t('scoring_guide.last_scorer.desc'),
             icon: <Star className="w-8 h-8 text-orange-600" />,
             color: 'bg-orange-50'
         },
         {
             id: 'brace',
-            title: 'Doublé',
-            description: 'Le joueur sélectionné marque au moins deux buts dans le match.',
+            title: t('scoring_guide.brace.title'),
+            description: t('scoring_guide.brace.desc'),
             icon: <TrendingUp className="w-8 h-8 text-pink-600" />,
             color: 'bg-pink-50'
         },
         {
             id: 'hattrick',
-            title: 'Triplé',
-            description: 'Le joueur sélectionné réalise un coup du chapeau (3 buts ou plus).',
+            title: t('scoring_guide.hattrick.title'),
+            description: t('scoring_guide.hattrick.desc'),
             icon: <Crown className="w-8 h-8 text-indigo-600" />,
             color: 'bg-indigo-50'
         },
         {
             id: 'scorer_win',
-            title: 'Buteur & Gagne',
-            description: 'Le joueur marque ET son équipe (WAC) remporte le match.',
+            title: t('scoring_guide.scorer_win.title'),
+            description: t('scoring_guide.scorer_win.desc'),
             icon: <CheckCircle className="w-8 h-8 text-emerald-600" />,
             color: 'bg-emerald-50'
         },
         {
             id: 'penalty_scorer',
-            title: 'Buteur Penalty',
-            description: 'Identifiez un joueur qui marquera sur penalty durant le match.',
+            title: t('scoring_guide.penalty_scorer.title'),
+            description: t('scoring_guide.penalty_scorer.desc'),
             icon: <Zap className="w-8 h-8 text-red-500" />,
             color: 'bg-red-100'
         }
@@ -89,11 +91,10 @@ const ScoringGuide = () => {
         <div className="max-w-6xl mx-auto p-6 pb-20 font-sans">
             <header className="mb-16 text-center animate-fade-in">
                 <h1 className="text-5xl font-black mb-4 uppercase italic tracking-tighter text-white leading-none">
-                    GUIDE DU <span className="text-red-600">BARÈME</span>
+                    {t('scoring_guide.title').split(' ')[0]} <span className="text-red-600">{t('scoring_guide.title').split(' ').slice(1).join(' ')}</span>
                 </h1>
                 <p className="text-white font-medium text-lg max-w-2xl mx-auto opacity-80">
-                    Optimisez vos pronostics en comprenant chaque indicateur.
-                    Les points attribués peuvent varier selon les réglages de votre ligue.
+                    {t('scoring_guide.subtitle')}
                 </p>
                 <div className="w-24 h-1.5 bg-red-600 mx-auto mt-6 rounded-full shadow-[0_0_15px_rgba(193,39,45,0.5)]"></div>
             </header>
@@ -132,27 +133,27 @@ const ScoringGuide = () => {
 
                 <div className="relative z-10">
                     <h2 className="text-3xl font-black uppercase italic mb-6">
-                        À savoir pour vos <span className="text-red-500">Prono</span>
+                        {t('scoring_guide.need_to_know').split(' ')[0]} {t('scoring_guide.need_to_know').split(' ')[1]} {t('scoring_guide.need_to_know').split(' ')[2]} <span className="text-red-500">{t('scoring_guide.need_to_know').split(' ').slice(3).join(' ')}</span>
                     </h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <ul className="space-y-4 text-gray-300 font-medium">
                             <li className="flex items-start gap-3">
                                 <div className="mt-1.5 w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                                <span>Les buts sur **penalty** comptent comme des buts normaux pour tous les indicateurs de buteurs.</span>
+                                <span>{t('scoring_guide.penalty_rule')}</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <div className="mt-1.5 w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                                <span>Les **C.S.C** (But contre son camp) ne sont pas attribués aux joueurs mais comptent pour le score et les intervalles.</span>
+                                <span>{t('scoring_guide.csc_rule')}</span>
                             </li>
                         </ul>
                         <ul className="space-y-4 text-gray-300 font-medium">
                             <li className="flex items-start gap-3">
                                 <div className="mt-1.5 w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                                <span>Les points sont calculés et validés par l'administration dans les **24h** suivant le match.</span>
+                                <span>{t('scoring_guide.validation_delay')}</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <div className="mt-1.5 w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
-                                <span>Chaque ligue peut avoir son propre système de points (Barème personnalisé).</span>
+                                <span>{t('scoring_guide.custom_league_rules')}</span>
                             </li>
                         </ul>
                     </div>

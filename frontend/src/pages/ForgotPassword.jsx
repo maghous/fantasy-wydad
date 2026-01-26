@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { authAPI } from '../services/api';
 import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 
 const ForgotPassword = () => {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -18,7 +20,7 @@ const ForgotPassword = () => {
             await authAPI.forgotPassword(email);
             setSuccess(true);
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de la demande');
+            setError(err.response?.data?.message || t('auth.error_generic'));
         } finally {
             setLoading(false);
         }
@@ -34,13 +36,13 @@ const ForgotPassword = () => {
                             className="flex items-center gap-2 text-gray-400 hover:text-white transition mb-8 text-sm font-bold"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Retour à la connexion
+                            {t('auth.back_to_login')}
                         </button>
                         <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">
-                            MOT DE PASSE <span className="text-red-600">OUBLIÉ ?</span>
+                            {t('auth.forgot_password_title').split(' ').slice(0, -1).join(' ')} <span className="text-red-600">{t('auth.forgot_password_title').split(' ').slice(-1)}</span>
                         </h2>
                         <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                            Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+                            {t('auth.forgot_password_subtitle')}
                         </p>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="relative">
@@ -60,22 +62,22 @@ const ForgotPassword = () => {
                                 disabled={loading}
                                 className="w-full py-4 premium-btn text-white rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2"
                             >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Envoyer le lien"}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.send_reset_link')}
                             </button>
                         </form>
                     </>
                 ) : (
                     <div className="text-center py-4">
                         <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-                        <h2 className="text-2xl font-black text-white uppercase italic mb-4">Email Envoyé !</h2>
+                        <h2 className="text-2xl font-black text-white uppercase italic mb-4">{t('auth.email_sent_title')}</h2>
                         <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                            Si un compte existe pour <strong>{email}</strong>, vous recevrez un email sous peu.
+                            {t('auth.email_sent_hint', { email })}
                         </p>
                         <button
                             onClick={() => navigate('/login')}
                             className="w-full py-4 bg-white text-black rounded-2xl font-black uppercase tracking-widest"
                         >
-                            Retour à la connexion
+                            {t('auth.back_to_login')}
                         </button>
                     </div>
                 )}

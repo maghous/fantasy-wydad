@@ -28,6 +28,7 @@ router.get('/:leagueId', auth, async (req, res) => {
 // Post a message
 router.post('/', auth, async (req, res) => {
     const { leagueId, text } = req.body;
+    console.log('CHAT POST:', { leagueId, text, userId: req.user.userId });
     try {
         const message = await db.create('messages', {
             leagueId,
@@ -36,10 +37,10 @@ router.post('/', auth, async (req, res) => {
             createdAt: new Date().toISOString()
         });
 
-        // Return with username
         const user = await db.findById('users', req.user.userId);
-        res.json({ ...message, username: user.username });
+        res.json({ ...message, username: user ? user.username : 'Moi' });
     } catch (err) {
+        console.error('CHAT ERROR:', err);
         res.status(500).send('Erreur serveur');
     }
 });

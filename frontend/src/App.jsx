@@ -21,6 +21,11 @@ function App() {
 
   useEffect(() => {
     loadUser();
+    // Apply performance mode from localStorage
+    const perfMode = localStorage.getItem('performance_mode');
+    if (perfMode === 'low') {
+      document.body.classList.add('low-perf');
+    }
   }, [loadUser]);
 
   if (loading) {

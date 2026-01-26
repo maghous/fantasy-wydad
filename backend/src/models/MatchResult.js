@@ -25,6 +25,6 @@ const matchResultSchema = new mongoose.Schema({
         goalType: String,                       // 'head', 'foot', 'freekick', 'corner'
         order: Number                           // 1 for first goal, etc.
     }]
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('MatchResult', matchResultSchema);

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { authAPI } from '../services/api';
 import { Lock, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const ResetPassword = () => {
+    const { t } = useTranslation();
     const { token } = useParams();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,7 +17,7 @@ const ResetPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            setError('Les mots de passe ne correspondent pas');
+            setError(t('auth.password_mismatch'));
             return;
         }
         setLoading(true);
@@ -25,7 +27,7 @@ const ResetPassword = () => {
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de la réinitialisation');
+            setError(err.response?.data?.message || t('auth.error_generic'));
         } finally {
             setLoading(false);
         }
@@ -37,10 +39,10 @@ const ResetPassword = () => {
                 {!success ? (
                     <>
                         <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">
-                            NOUVEAU <span className="text-red-600">MOT DE PASSE</span>
+                            {t('auth.new_password_title').split(' ').slice(0, -1).join(' ')} <span className="text-red-600">{t('auth.new_password_title').split(' ').slice(-1)}</span>
                         </h2>
                         <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                            Choisissez votre nouveau mot de passe sécurisé.
+                            {t('auth.new_password_subtitle')}
                         </p>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="relative">
@@ -49,7 +51,7 @@ const ResetPassword = () => {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Nouveau mot de passe"
+                                    placeholder={t('auth.password')}
                                     className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all font-medium"
                                     required
                                 />
@@ -60,7 +62,7 @@ const ResetPassword = () => {
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="Confirmer le mot de passe"
+                                    placeholder={t('auth.confirm_password_placeholder')}
                                     className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all font-medium"
                                     required
                                 />
@@ -76,16 +78,16 @@ const ResetPassword = () => {
                                 disabled={loading}
                                 className="w-full py-4 premium-btn text-white rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2"
                             >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Réinitialiser"}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.reset_button')}
                             </button>
                         </form>
                     </>
                 ) : (
                     <div className="text-center py-4">
                         <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-                        <h2 className="text-2xl font-black text-white uppercase italic mb-4">Succès !</h2>
+                        <h2 className="text-2xl font-black text-white uppercase italic mb-4">{t('auth.reset_success_title')}</h2>
                         <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-                            Votre mot de passe a été mis à jour. Redirection vers la page de connexion...
+                            {t('auth.reset_success_hint')}
                         </p>
                     </div>
                 )}

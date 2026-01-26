@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BarChart3, ArrowLeft, Trophy, Share2 } from 'lucide-react';
 import { rankingAPI, leagueAPI } from '../services/api';
 import { useAuthStore } from '../context/useAuthStore';
 
 export default function Rankings() {
+    const { t } = useTranslation();
     const { leagueId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuthStore();
@@ -46,7 +48,7 @@ export default function Rankings() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-xl text-gray-600">Chargement...</div>
+                <div className="text-xl text-gray-600">{t('common.loading')}</div>
             </div>
         );
     }
@@ -56,7 +58,7 @@ export default function Rankings() {
             <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-4xl md:text-5xl font-black text-white mb-2 uppercase italic tracking-tighter">
-                        Classement - <span className="text-red-500">{league?.name}</span>
+                        {t('rankings.title')} - <span className="text-red-500">{league?.name}</span>
                     </h1>
                     <p className="text-gray-400 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
                         <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
@@ -76,7 +78,7 @@ export default function Rankings() {
                         className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition font-black flex items-center gap-2 border border-white/10 backdrop-blur-md uppercase text-xs"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Retour
+                        {t('common.back')}
                     </button>
                 </div>
             </div>
@@ -84,7 +86,7 @@ export default function Rankings() {
             {rankings.length === 0 ? (
                 <div className="glass-card rounded-[32px] p-20 text-center border border-white/10">
                     <BarChart3 className="w-20 h-20 text-white/5 mx-auto mb-6" />
-                    <p className="text-gray-400 text-xl font-bold italic uppercase tracking-widest">Aucun classement pour le moment</p>
+                    <p className="text-gray-400 text-xl font-bold italic uppercase tracking-widest">{t('rankings.no_data')}</p>
                     <p className="text-gray-500 text-sm mt-4 uppercase tracking-widest font-black">Les points seront calculés après les résultats</p>
                 </div>
             ) : (
@@ -93,12 +95,12 @@ export default function Rankings() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-white/5 border-b border-white/10">
-                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Rang</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Pronostiqueur</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Pronos</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('rankings.rank')}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{t('rankings.player')}</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">{t('rankings.predictions')}</th>
                                     <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center hidden md:table-cell">Scores Exacts</th>
                                     <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center hidden md:table-cell">Résultats</th>
-                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Points</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">{t('rankings.points')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">

@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../context/useAuthStore';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 export default function Login() {
+    const { t } = useTranslation();
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         email: '',
@@ -38,11 +41,14 @@ export default function Login() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-wydad-600 to-wydad-800 flex items-center justify-center p-4">
+            <div className="absolute top-4 right-4 bg-white/10 p-2 rounded-xl backdrop-blur-sm">
+                <LanguageSwitcher />
+            </div>
             <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
                 <div className="text-center mb-8">
                     <Trophy className="w-16 h-16 text-wydad-600 mx-auto mb-4" />
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Wydad Pronostics</h1>
-                    <p className="text-gray-600">Bienvenue cher supporter !</p>
+                    <p className="text-gray-600">{t('common.welcome')}</p>
                 </div>
 
                 {error && (
@@ -55,7 +61,7 @@ export default function Login() {
                     {!isLogin && (
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Nom d'utilisateur
+                                {t('auth.username')}
                             </label>
                             <input
                                 type="text"
@@ -71,7 +77,7 @@ export default function Login() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Email
+                            {t('auth.email')}
                         </label>
                         <input
                             type="email"
@@ -86,7 +92,7 @@ export default function Login() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Mot de passe
+                            {t('auth.password')}
                         </label>
                         <input
                             type="password"
@@ -105,7 +111,7 @@ export default function Login() {
                                 to="/forgot-password"
                                 className="text-sm font-semibold text-wydad-600 hover:text-wydad-800 transition-colors"
                             >
-                                Mot de passe oublié ?
+                                {t('auth.forgot_password')}
                             </Link>
                         </div>
                     )}
@@ -115,7 +121,7 @@ export default function Login() {
                         disabled={loading}
                         className="w-full bg-wydad-600 text-white py-3 rounded-lg font-semibold hover:bg-wydad-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Chargement...' : isLogin ? 'Connexion' : 'Inscription'}
+                        {loading ? t('common.loading') : isLogin ? t('auth.login') : t('auth.register')}
                     </button>
                 </form>
 
@@ -124,7 +130,7 @@ export default function Login() {
                         onClick={() => setIsLogin(!isLogin)}
                         className="text-wydad-600 hover:text-wydad-700 font-medium"
                     >
-                        {isLogin ? "Pas de compte ? S'inscrire" : 'Déjà un compte ? Se connecter'}
+                        {isLogin ? t('auth.no_account') : t('auth.have_account')}
                     </button>
                 </div>
             </div>

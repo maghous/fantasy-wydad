@@ -50,7 +50,8 @@ export const matchAPI = {
 export const predictionAPI = {
     getAll: () => api.get('/predictions'),
     getByMatch: (matchId) => api.get(`/predictions/match/${matchId}`),
-    getByLeague: (leagueId, matchId) => api.get(`/predictions/league/${leagueId}/${matchId}`),
+    getBreakdown: (matchId, leagueId) => api.get(`/predictions/breakdown/${matchId}/${leagueId || ''}`),
+    getByLeague: (leagueId, matchId) => api.get(`/leagues/${leagueId}/predictions/${matchId}`),
     create: (data) => api.post('/predictions', data),
 };
 
@@ -84,11 +85,27 @@ export const adminAPI = {
 
 export const statsAPI = {
     getGlobal: () => api.get('/stats/global'),
+    getTopScorers: () => api.get('/stats/top-scorers'),
+    getSeasonTop: () => api.get('/stats/season-top'),
+    saveSeasonTop: (scorers) => api.post('/stats/season-top', { scorers }),
 };
 
 export const messagesAPI = {
     getByLeague: (leagueId) => api.get(`/messages/${leagueId}`),
     post: (data) => api.post('/messages', data),
+};
+
+export const motmAPI = {
+    getResults: (matchId) => api.get(`/motm/results/${matchId}`),
+    vote: (data) => api.post('/motm/vote', data),
+    checkMyVote: (matchId) => api.get(`/motm/myvk/${matchId}`),
+    getAllWinners: () => api.get('/motm/winners'),
+};
+
+export const uploadAPI = {
+    uploadLogo: (formData) => api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
 };
 
 export default api;

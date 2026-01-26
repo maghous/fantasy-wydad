@@ -1,5 +1,12 @@
 # 🚀 Guide de Déploiement - Wydad Pronostics
 
+## 🚀 Déploiement Automatisé (Recommandé)
+J'ai ajouté un fichier `render.yaml` à la racine. Pour déployer le backend sur Render :
+1. Allez sur votre tableau de bord Render.
+2. Cliquez sur **New +** > **Blueprint**.
+3. Connectez votre dépôt GitHub.
+4. Render configurera automatiquement le serveur **ET** le disque persistant pour vos logos.
+
 Pour inviter vos amis, vous devez mettre l'application en ligne. Voici la méthode la plus simple et gratuite.
 
 ## ⚠️ Prérequis Important : La Base de Données

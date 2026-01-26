@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 const autoSeed = require('./utils/autoSeed');
@@ -35,6 +36,7 @@ connectDB();
 
 // Init Middleware
 app.use(express.json({ extended: false }));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // CORS configuration (Restrict in production)
 const corsOptions = {
@@ -71,6 +73,8 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/motm', require('./routes/motm'));
+app.use('/api/upload', require('./routes/upload'));
 
 const PORT = process.env.PORT || 5000;
 

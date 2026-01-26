@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: fantasy-wydad-backend
+    env: node
+    plan: free # Change to starter/standard for disk support on Render
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://fantasy-wydad.vercel.app
+      - key: PORT
+        value: 5000
+    # Note: Free plan on Render doesn't support persistent disks. 
+    # Uploaded logos via admin will be lost on restarts/redeployments.
+    # Official club logos in public/logos/ are safe.

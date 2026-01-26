@@ -26,3 +26,7 @@ yarn-error.log*
 
 # Database
 data/
+
+# Uploads (Keep directory with .gitkeep)
+backend/uploads/logos/*
+!backend/uploads/logos/.gitkeep

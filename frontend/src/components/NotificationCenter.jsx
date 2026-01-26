@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, X, CheckSquare, Trophy, Star, ShieldAlert } from 'lucide-react';
 import { notificationAPI } from '../services/api';
 
 const NotificationCenter = ({ isOpen, onClose }) => {
+    const { t } = useTranslation();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -39,13 +41,13 @@ const NotificationCenter = ({ isOpen, onClose }) => {
             <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
                 <h3 className="text-lg font-black uppercase italic text-white flex items-center gap-2">
                     <Bell className="w-5 h-5 text-red-600" />
-                    Notifications
+                    {t('notifications.title')}
                 </h3>
                 <div className="flex gap-2">
                     <button
                         onClick={handleMarkAllRead}
                         className="p-2 hover:bg-white/10 rounded-full text-gray-400 transition"
-                        title="Tout marquer comme lu"
+                        title={t('notifications.mark_all_read')}
                     >
                         <CheckSquare className="w-5 h-5" />
                     </button>
@@ -60,11 +62,11 @@ const NotificationCenter = ({ isOpen, onClose }) => {
 
             <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
                 {loading ? (
-                    <div className="p-10 text-center text-gray-500 font-bold uppercase text-xs tracking-widest">Chargement...</div>
+                    <div className="p-10 text-center text-gray-500 font-bold uppercase text-xs tracking-widest">{t('common.loading')}</div>
                 ) : notifications.length === 0 ? (
                     <div className="p-20 text-center flex flex-col items-center gap-4 opacity-20">
                         <Bell className="w-12 h-12" />
-                        <p className="text-xs font-black uppercase tracking-widest text-white">Aucune notification</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-white">{t('notifications.no_notifications')}</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-white/5">
@@ -99,7 +101,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
 
             <div className="p-4 bg-white/5 text-center border-t border-white/10">
                 <button className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition">
-                    Voir tout l'historique
+                    {t('notifications.view_history')}
                 </button>
             </div>
         </div>

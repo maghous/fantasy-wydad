@@ -9,7 +9,10 @@ const models = {
     'predictions': require('../models/Prediction'),
     'results': require('../models/MatchResult'),
     'notifications': require('../models/Notification'),
-    'invitations': require('../models/Invitation')
+    'invitations': require('../models/Invitation'),
+    'messages': require('../models/Message'),
+    'seasonscorers': require('../models/SeasonScorer'),
+    'motmvotes': require('../models/MotMVote')
 };
 
 // Wrapper that switches between Mongoose and JSON DB based on connection status
@@ -74,8 +77,7 @@ const wrapper = {
 
     insertMany: async (collection, data) => {
         if (isMongoConnected() && models[collection]) {
-            await models[collection].insertMany(data);
-            return;
+            return await models[collection].insertMany(data);
         }
         return await db.insertMany(collection, data);
     }

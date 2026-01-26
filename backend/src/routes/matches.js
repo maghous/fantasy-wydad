@@ -32,14 +32,17 @@ router.get('/next', async (req, res) => {
 
 // Create match (Admin only)
 router.post('/', [auth, admin], async (req, res) => {
-    const { opponent, date, location } = req.body;
+    const { opponent, date, location, competition, round } = req.body;
 
     try {
         const match = await db.create('matches', {
             opponent,
             date,
             location,
-            status: 'upcoming'
+            competition,
+            round,
+            status: 'upcoming',
+            isLocked: false
         });
         res.json(match);
     } catch (err) {
@@ -62,7 +65,7 @@ router.get('/:id', async (req, res) => {
 
 // Update match (Admin only)
 router.put('/:id', [auth, admin], async (req, res) => {
-    const { opponent, date, location, competition, round, status } = req.body;
+    const { opponent, date, location, competition, round, status, isLocked } = req.body;
 
     try {
         const match = await db.update('matches', req.params.id, {
@@ -71,7 +74,8 @@ router.put('/:id', [auth, admin], async (req, res) => {
             location,
             competition,
             round,
-            status
+            status,
+            isLocked
         });
         if (!match) return res.status(404).json({ message: 'Match non trouvé' });
         res.json(match);
